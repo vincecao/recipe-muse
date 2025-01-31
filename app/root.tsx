@@ -1,10 +1,10 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
-import { MantineProvider, ColorSchemeScript } from "@mantine/core";
-import { useColorScheme } from "@mantine/hooks";
-import { useState } from "react";
+import { MantineProvider, ColorSchemeScript, useMantineColorScheme } from "@mantine/core";
 
 import "./tailwind.css";
+import ThemeButton from "./component/ThemeButton";
+import BackButton from "./component/BackButton";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -20,14 +20,8 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const preferredColorScheme = useColorScheme();
-  const [colorScheme, setColorScheme] = useState<'light' | 'dark'>(preferredColorScheme);
-
-  const toggleColorScheme = (value?: 'light' | 'dark') => {
-    const nextColorScheme = value || (colorScheme === 'dark' ? 'light' : 'dark');
-    setColorScheme(nextColorScheme);
-  };
-
+  // const { colorScheme } = useMantineColorScheme();
+  // const isDark = colorScheme === "dark";
   return (
     <html lang="en">
       <head>
@@ -38,37 +32,48 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider
-          defaultColorScheme="light"
-          colorScheme={colorScheme}
-          theme={{
-            fontFamily: 'Source Serif 4, serif',
-            headings: { 
-              fontFamily: 'Playfair Display, serif',
-              fontWeight: '500'
-            },
-            colors: {
-              brand: [
-                '#fff4e6',
-                '#ffe8cc',
-                '#ffd8a8',
-                '#ffc078',
-                '#ffa94d',
-                '#ff922b',
-                '#fd7e14',
-                '#f76707',
-                '#e8590c',
-                '#d9480f'
-              ],
-            },
-          }}
-        >
-          {children}
-        </MantineProvider>
+        <MProvider>
+          <InnerApp>{children}</InnerApp>
+        </MProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
+  );
+}
+
+function InnerApp({ children }: { children: React.ReactNode }) {
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === "dark";
+
+  const { pathname } = useLocation();
+  const allowBack = pathname !== "/";
+  return (
+    <>
+      {children}
+      <ThemeButton />
+      {allowBack && <BackButton />}
+      <div className={`fixed z-0 bottom-0 left-0 right-0 text-center py-4 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>@2024 vincecao</div>
+    </>
+  );
+}
+
+function MProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <MantineProvider
+      theme={{
+        fontFamily: "Source Serif 4, serif",
+        headings: {
+          fontFamily: "Playfair Display, serif",
+          fontWeight: "500",
+        },
+        colors: {
+          brand: ["#fff4e6", "#ffe8cc", "#ffd8a8", "#ffc078", "#ffa94d", "#ff922b", "#fd7e14", "#f76707", "#e8590c", "#d9480f"],
+        },
+      }}
+    >
+      {children}
+    </MantineProvider>
   );
 }
 
