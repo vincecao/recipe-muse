@@ -1,4 +1,4 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation } from "@remix-run/react";
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 
@@ -8,6 +8,7 @@ import BackButton from "./component/BackButton";
 import { useIsDark } from "./core/useIsDark";
 
 import cn from "classnames";
+import AboutUsButton from "./component/AboutUsButton";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -45,14 +46,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 function InnerApp({ children }: { children: React.ReactNode }) {
   const isDark = useIsDark();
-
   const { pathname } = useLocation();
-  const allowBack = pathname !== "/";
+  const allowBack = !["/", "/about-us"].includes(pathname);
+  const showAboutUs = pathname !== "/about-us";
+
   return (
     <>
       {children}
-      <ThemeButton />
-      {allowBack && <BackButton />}
+      <div className="fixed right-4 top-4 flex gap-2">
+        <ThemeButton />
+        {showAboutUs && <AboutUsButton />}
+      </div>
+      <div className="fixed left-4 top-4 flex gap-2">{allowBack && <BackButton />}</div>
       <div
         className={cn("fixed z-0 bottom-0 left-0 right-0 text-center py-4 text-sm", {
           "text-gray-400": isDark,

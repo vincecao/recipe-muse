@@ -10,9 +10,7 @@ const ThemeButton = memo(function ThemeButtonComponent() {
   return (
     <button
       onClick={() => toggleColorScheme()}
-      className={`
-        fixed top-3 right-3
-        flex items-center gap-2 p-2
+      className={`flex items-center gap-2 p-2
         font-serif text-sm tracking-wider
         border rounded-md
         transition-all duration-300

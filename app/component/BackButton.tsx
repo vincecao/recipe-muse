@@ -1,18 +1,11 @@
 import { useNavigate } from "@remix-run/react";
 import { memo } from "react";
 import { FiArrowLeft } from "react-icons/fi";
-import { useIsDark } from "~/core/useIsDark";
-import cn from "classnames";
+import NavButton from "./NavButton";
 
 const BackButton = () => {
-  const isDark = useIsDark();
   const navigate = useNavigate();
-  return (
-    <button onClick={() => navigate(-1)} className={cn("fixed left-3 top-3", "flex items-center gap-2", "p-2 rounded-full", "transition-colors", isDark ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")}>
-      <FiArrowLeft className="w-6 h-6" />
-      Back
-    </button>
-  );
+  return <NavButton type="button" onClick={() => navigate(-1)} text="Back" icon={<FiArrowLeft className="w-4 h-4" />} />;
 };
 
 export default memo(BackButton);
