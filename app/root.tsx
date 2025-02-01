@@ -9,6 +9,7 @@ import { useIsDark } from "./core/useIsDark";
 
 import cn from "classnames";
 import AboutUsButton from "./component/AboutUsButton";
+import HomeButton from "./component/HomeButton";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -47,6 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 function InnerApp({ children }: { children: React.ReactNode }) {
   const isDark = useIsDark();
   const { pathname } = useLocation();
+  const allowHome = pathname !== "/";
   const allowBack = !["/", "/about-us"].includes(pathname);
   const showAboutUs = pathname !== "/about-us";
 
@@ -57,7 +59,10 @@ function InnerApp({ children }: { children: React.ReactNode }) {
         <ThemeButton />
         {showAboutUs && <AboutUsButton />}
       </div>
-      <div className="fixed left-4 top-4 flex gap-2">{allowBack && <BackButton />}</div>
+      <div className="fixed left-4 top-4 flex gap-2">
+        {allowHome && <HomeButton />}
+        {allowBack && <BackButton />}
+      </div>
       <div
         className={cn("fixed z-0 bottom-0 left-0 right-0 text-center py-4 text-sm", {
           "text-gray-400": isDark,

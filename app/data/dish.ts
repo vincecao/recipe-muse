@@ -11,11 +11,11 @@ export const recommendedDishes: Dish[] = [
     ingredientsCount: 6,
     time: "15 mins",
     calories: 320,
-    price: "$18",
     images: ["https://media.istockphoto.com/id/1346744481/photo/anonymous-chef-harvesting-fresh-vegetables-on-a-farm.jpg?s=612x612&w=0&k=20&c=U9h4fAi68nwVndAJW8TF-f2lFFCO2Y-XrZWA2gah1Xw="],
     tags: ["vegetarian", "italian", "cheese"],
     servingSize: "For 2",
     allergens: ["dairy", "gluten"],
+    cuisine: "Italian"
   },
   {
     id: "app-2",
@@ -26,11 +26,11 @@ export const recommendedDishes: Dish[] = [
     ingredientsCount: 8,
     time: "25 mins",
     calories: 280,
-    price: "$22",
     images: ["https://media.istockphoto.com/id/871231060/photo/organic-food-signage-on-modern-supermarket-fresh-produce-vegetable-aisle.jpg?s=612x612&w=0&k=20&c=XbmsAmMzGGDyeA_iWUQFWCYLBFFtgz8NqKbLRmvOuPM="],
     tags: ["seafood", "raw", "asian-fusion"],
     servingSize: "For 2",
     allergens: ["fish", "soy", "gluten"],
+    cuisine: "Japanese"
   },
 
   // Main Course
@@ -43,11 +43,11 @@ export const recommendedDishes: Dish[] = [
     ingredientsCount: 10,
     time: "45 mins",
     calories: 850,
-    price: "$95",
     images: ["https://media.istockphoto.com/id/1097842636/photo/autumn-harvest.jpg?s=612x612&w=0&k=20&c=rWckDYdnQG403oG0HwCpGZyGtZrZv2zPLIVOvgbu8Ng="],
     tags: ["beef", "luxury", "grilled"],
     servingSize: "For 1",
     allergens: ["dairy"],
+    cuisine: "Japanese"
   },
   {
     id: "main-2",
@@ -58,11 +58,11 @@ export const recommendedDishes: Dish[] = [
     ingredientsCount: 12,
     time: "50 mins",
     calories: 680,
-    price: "$48",
     images: ["https://media.istockphoto.com/id/1003787134/photo/bag-with-fresh-vegetables.jpg?s=612x612&w=0&k=20&c=sez4OkCCYpNMpL0-2bW1i8IHWQSnJODmGOhpNXpLDsQ="],
     tags: ["seafood", "italian", "creamy"],
     servingSize: "For 1",
     allergens: ["shellfish", "dairy"],
+    cuisine: "Italian"
   },
 
   // Desserts
@@ -75,11 +75,11 @@ export const recommendedDishes: Dish[] = [
     ingredientsCount: 8,
     time: "30 mins",
     calories: 450,
-    price: "$16",
     images: ["https://media.istockphoto.com/id/1222581489/photo/farmer-woman-holding-wooden-box-full-of-fresh-raw-vegetables.jpg?s=612x612&w=0&k=20&c=oqL1nl4fxvYrDCG93r0PXEe2NnARXwPT7RqXFIRSPh8="],
     tags: ["chocolate", "hot", "classic"],
     servingSize: "For 1",
     allergens: ["dairy", "eggs"],
+    cuisine: "French"
   },
   {
     id: "dessert-2",
@@ -90,11 +90,11 @@ export const recommendedDishes: Dish[] = [
     ingredientsCount: 6,
     time: "45 mins",
     calories: 380,
-    price: "$14",
     images: ["https://media.istockphoto.com/id/870915532/photo/man-holding-crate-ob-fresh-vegetables.jpg?s=612x612&w=0&k=20&c=k2dXOI-wxUy7lX77Pm90vU6TJXmAAv5VtK60ZZHIyCA="],
     tags: ["french", "classic", "custard"],
     servingSize: "For 1",
     allergens: ["dairy", "eggs"],
+    cuisine: "French"
   },
 
   // Beverages
@@ -107,10 +107,10 @@ export const recommendedDishes: Dish[] = [
     ingredientsCount: 5,
     time: "10 mins",
     calories: 220,
-    price: "$18",
     images: ["https://media.istockphoto.com/id/901653798/photo/young-farmer-with-crate-full-of-vegetables.jpg?s=612x612&w=0&k=20&c=qBCV-H1Hqww_Hh-hPS8fi-oed0fOJygyylo-5r3jBsk="],
     tags: ["cocktail", "whiskey", "smoked"],
     servingSize: "8 oz",
+    cuisine: "American"
   },
   {
     id: "bev-2",
@@ -121,10 +121,10 @@ export const recommendedDishes: Dish[] = [
     ingredientsCount: 4,
     time: "5 mins",
     calories: 180,
-    price: "$16",
     images: ["https://media.istockphoto.com/id/1198277998/photo/zero-waste-lifestyle-plastic-free-eco-friendly-food-shopping-healthy-food-vegetable-in.jpg?s=612x612&w=0&k=20&c=MaFpXa9MvKwAzp_ppBK63176pA2bKWXtahrr6DJcivs="],
     tags: ["cocktail", "sparkling", "floral"],
     servingSize: "6 oz",
+    cuisine: "French"
   },
 ];
 
