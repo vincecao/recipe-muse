@@ -44,6 +44,9 @@ importers:
       '@remix-run/serve':
         specifier: ^2.15.3
         version: 2.15.3(typescript@5.7.3)
+      classnames:
+        specifier: ^2.5.1
+        version: 2.5.1
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -1288,6 +1291,9 @@ packages:
   chownr@2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
+
+  classnames@2.5.1:
+    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
   clean-stack@2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
@@ -5079,6 +5085,8 @@ snapshots:
   chownr@1.1.4: {}
 
   chownr@2.0.0: {}
+
+  classnames@2.5.1: {}
 
   clean-stack@2.2.0: {}
 

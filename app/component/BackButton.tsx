@@ -1,23 +1,14 @@
-import { useMantineColorScheme } from "@mantine/core";
 import { useNavigate } from "@remix-run/react";
 import { memo } from "react";
 import { FiArrowLeft } from "react-icons/fi";
+import { useIsDark } from "~/core/useIsDark";
+import cn from "classnames";
 
 const BackButton = () => {
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === "dark";
+  const isDark = useIsDark();
   const navigate = useNavigate();
   return (
-    <button
-      onClick={() => navigate(-1)}
-      className={`
-    fixed left-3 top-3
-    flex items-center gap-2
-    p-2 rounded-full
-    transition-colors
-    ${isDark ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"}
-  `}
-    >
+    <button onClick={() => navigate(-1)} className={cn("fixed left-3 top-3", "flex items-center gap-2", "p-2 rounded-full", "transition-colors", isDark ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")}>
       <FiArrowLeft className="w-6 h-6" />
       Back
     </button>

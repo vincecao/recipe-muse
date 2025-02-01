@@ -6,13 +6,16 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "Source Serif 4",
-          "ui-serif",
-          "Georgia",
-          "Cambria",
-          "Times New Roman",
-          "Times",
-          "serif",
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
         ],
         serif: [
           "Playfair Display",
@@ -21,7 +24,7 @@ export default {
           "Cambria",
           "Times New Roman",
           "Times",
-          "serif",
+          "serif"
         ],
       },
     },

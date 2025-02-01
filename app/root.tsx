@@ -1,10 +1,13 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
-import { MantineProvider, ColorSchemeScript, useMantineColorScheme } from "@mantine/core";
+import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 
 import "./tailwind.css";
 import ThemeButton from "./component/ThemeButton";
 import BackButton from "./component/BackButton";
+import { useIsDark } from "./core/useIsDark";
+
+import cn from "classnames";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -15,13 +18,11 @@ export const links: LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap",
   },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  // const { colorScheme } = useMantineColorScheme();
-  // const isDark = colorScheme === "dark";
   return (
     <html lang="en">
       <head>
@@ -43,8 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function InnerApp({ children }: { children: React.ReactNode }) {
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === "dark";
+  const isDark = useIsDark();
 
   const { pathname } = useLocation();
   const allowBack = pathname !== "/";
@@ -53,7 +53,20 @@ function InnerApp({ children }: { children: React.ReactNode }) {
       {children}
       <ThemeButton />
       {allowBack && <BackButton />}
-      <div className={`fixed z-0 bottom-0 left-0 right-0 text-center py-4 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>@2024 vincecao</div>
+      <div
+        className={cn("fixed z-0 bottom-0 left-0 right-0 text-center py-4 text-sm", {
+          "text-gray-400": isDark,
+          "text-gray-600": !isDark,
+        })}
+      >
+        <a href="https://github.com/vincecao/meal-muse" target="_black">
+          MealMuse
+        </a>{" "}
+        @2024{" "}
+        <a href="https://www.vince-amazing.com/" target="_black">
+          vincecao
+        </a>
+      </div>
     </>
   );
 }

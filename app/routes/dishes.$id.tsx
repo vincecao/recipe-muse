@@ -1,10 +1,10 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getDishById } from "~/data/dish";
-import { useMantineColorScheme } from "@mantine/core";
 import { FaGripfire, FaUsers } from "react-icons/fa";
 import { GoClock } from "react-icons/go";
 import { TiStarFullOutline } from "react-icons/ti";
+import { useIsDark } from "~/core/useIsDark";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const dish = await getDishById(params.id!);
@@ -13,8 +13,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 };
 
 export default function DishDetailPage() {
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === "dark";
+  const isDark = useIsDark();
   const { dish } = useLoaderData<typeof loader>();
 
   return (
