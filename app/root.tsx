@@ -5,9 +5,6 @@ import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import "./tailwind.css";
 import ThemeButton from "./component/ThemeButton";
 import BackButton from "./component/BackButton";
-import { useIsDark } from "./core/useIsDark";
-
-import cn from "classnames";
 import AboutUsButton from "./component/AboutUsButton";
 import HomeButton from "./component/HomeButton";
 
@@ -34,7 +31,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <ColorSchemeScript />
       </head>
-      <body>
+      <body className="overflow-hidden">
         <MProvider>
           <InnerApp>{children}</InnerApp>
         </MProvider>
@@ -46,29 +43,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function InnerApp({ children }: { children: React.ReactNode }) {
-  const isDark = useIsDark();
   const { pathname } = useLocation();
   const allowHome = pathname !== "/";
   const allowBack = !["/", "/about-us"].includes(pathname);
   const showAboutUs = pathname !== "/about-us";
 
   return (
-    <>
-      {children}
-      <div className="fixed right-4 top-4 flex gap-2">
+    <main className="absolute top-0 left-0 right-0 min-h-screen px-0 pt-16 pb-12 bg-slate-50 dark:bg-slate-900 h-full overflow-auto">
+      {allowHome && <Link to="/" className="absolute top-0 right-0 left-0 text-center font-serif mt-4 text-2xl">Meal Muse</Link>}
+      <div className="fixed right-4 top-4 flex gap-2 z-20">
         <ThemeButton />
         {showAboutUs && <AboutUsButton />}
       </div>
-      <div className="fixed left-4 top-4 flex gap-2">
+      <div className="fixed left-4 top-4 flex gap-2 z-20">
         {allowHome && <HomeButton />}
         {allowBack && <BackButton />}
       </div>
-      <div
-        className={cn("fixed z-0 bottom-0 left-0 right-0 text-center py-4 text-sm", {
-          "text-gray-400": isDark,
-          "text-gray-600": !isDark,
-        })}
-      >
+      <div className="fixed bottom-0 left-0 right-0 text-center py-4 text-sm text-gray-600 dark:text-gray-400 z-0">
         <a href="https://github.com/vincecao/meal-muse" target="_black">
           MealMuse
         </a>{" "}
@@ -77,7 +68,8 @@ function InnerApp({ children }: { children: React.ReactNode }) {
           vincecao
         </a>
       </div>
-    </>
+      {children}
+    </main>
   );
 }
 

@@ -1,35 +1,62 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Dish } from "~/core/dish";
-import { recommendedDishes } from "~/data/dish";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { Dish, Recipe } from "~/core/dish";
 import { memo, PropsWithChildren } from "react";
-import { useIsDark } from "~/core/useIsDark";
-import { Link } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { FaGripfire, FaUsers } from "react-icons/fa";
 import { GoClock } from "react-icons/go";
 import { TiStarFullOutline } from "react-icons/ti";
-import cn from "classnames";
+import axios, { isAxiosError } from "axios";
+import { mockDishNames, mockRecipes } from "~/data/dish";
 
 export const meta: MetaFunction = () => {
   return [{ title: "MealMuse - Daily Menu" }, { name: "description", content: "Today's curated selection of dishes, crafted with care and precision." }];
 };
 
-export default function Index() {
-  const dishesByCategory = recommendedDishes.reduce((acc: Record<Dish["category"], Dish[]>, dish) => {
-    if (!acc[dish.category]) {
-      acc[dish.category] = [];
+export const loader: LoaderFunction = async ({ request }) => {
+  const MODEL = "claude-3-opus-20240229";
+  let recipes: Recipe[] = [];
+  const origin = new URL(request.url).origin;
+
+  try {
+    // Get dish names from API using Axios
+    // const dishNamesResponse = await axios.get<{dishNames: string[]}>(`${origin}/api/generate-dish-names?model=${MODEL}`);
+    // const { dishNames } = dishNamesResponse.data;
+    const dishNames = [mockDishNames[0]];
+
+    // Get recipes for each dish name using Axios
+    // const recipePromises = dishNames.map((name: string) => axios.get(`${origin}/api/get-recipe?dishName=${encodeURIComponent(name)}&model=${MODEL}`));
+
+    // const recipeResponses = await Promise.all(recipePromises);
+    recipes = mockRecipes; // recipeResponses.map((response) => response.data.recipe);
+  } catch (error) {
+    console.error("Loader error:", error);
+    if (isAxiosError(error)) {
+      throw new Response(error.response?.data?.error || "Failed to load recipes", {
+        status: error.response?.status || 500,
+      });
     }
-    acc[dish.category].push(dish);
+    throw new Response("Failed to load recipes", { status: 500 });
+  }
+
+  const recipesByCategory = recipes.reduce((acc: Record<Recipe["category"], Recipe[]>, recipe) => {
+    (acc[recipe.category] ||= []).push(recipe);
     return acc;
-  }, {} as Record<Dish["category"], Dish[]>);
+  }, {} as Record<Recipe["category"], Recipe[]>);
+
+  return Response.json({ recipesByCategory });
+};
+
+export default function Index() {
+  const { recipesByCategory } = useLoaderData<{ recipesByCategory: Record<Recipe["category"], Recipe[]> }>();
 
   return (
     <MenuLayout>
       <MenuHeader />
       <MenuContent>
-        {Object.entries(dishesByCategory).map(([category, dishes]) => (
-          <MenuSection key={category} category={category as Dish["category"]}>
-            {dishes.map((dish) => (
-              <DishCard key={dish.id} dish={dish} />
+        {Object.entries(recipesByCategory).map(([category, recipes]) => (
+          <MenuSection key={category} category={category as Recipe["category"]}>
+            {recipes.map((recipe) => (
+              <DishCard key={recipe.id} recipe={recipe} />
             ))}
           </MenuSection>
         ))}
@@ -40,35 +67,12 @@ export default function Index() {
 }
 
 export const MenuLayout = memo(function Layout({ children }: PropsWithChildren<unknown>) {
-  const isDark = useIsDark();
-  return (
-    <div
-      className={cn("min-h-screen p-12", {
-        "bg-slate-900": isDark,
-        "bg-slate-50": !isDark,
-      })}
-    >
-      <div
-        className={cn("max-w-6xl mx-auto shadow-lg relative", {
-          "bg-slate-800": isDark,
-          "bg-white": !isDark,
-        })}
-      >
-        {children}
-      </div>
-    </div>
-  );
+  return <div className="w-full max-w-6xl mx-auto shadow-none sm:shadow-lg relative sm:rounded-xl bg-white dark:bg-slate-800">{children}</div>;
 });
 
 const MenuHeader = memo(function MenuHeader() {
-  const isDark = useIsDark();
   return (
-    <div
-      className={cn("text-center pt-16", {
-        "border-slate-700": isDark,
-        "border-slate-200": !isDark,
-      })}
-    >
+    <div className="text-center pt-16 border-slate-200 dark:border-slate-700">
       <div className="flex flex-col items-center">
         {/* Main Title */}
         <h1 className="relative font-serif text-6xl font-medium tracking-wider mb-2">
@@ -88,14 +92,7 @@ const MenuHeader = memo(function MenuHeader() {
         </div>
 
         {/* Subtitle */}
-        <div
-          className={cn("text-sm tracking-[0.25em] font-light", {
-            "text-slate-400": isDark,
-            "text-slate-600": !isDark,
-          })}
-        >
-          ARTISANAL CUISINE
-        </div>
+        <div className="text-sm tracking-[0.25em] font-light text-slate-600 dark:text-slate-400">ARTISANAL CUISINE</div>
       </div>
     </div>
   );
@@ -106,80 +103,60 @@ const MenuContent = memo(function MenuContent({ children }: PropsWithChildren<un
 });
 
 const MenuSection = memo(function MenuSection({ category, children }: PropsWithChildren<{ category: Dish["category"] }>) {
-  const isDark = useIsDark();
   return (
     <section className="space-y-6">
       <div className="flex items-center gap-4">
-        <div
-          className={cn("h-px flex-1", {
-            "bg-slate-700": isDark,
-            "bg-slate-200": !isDark,
-          })}
-        />
-        <h2
-          className={cn("font-serif text-2xl tracking-[0.15em] text-center font-medium", {
-            "text-slate-200": isDark,
-            "text-slate-800": !isDark,
-          })}
-        >
-          {category.toUpperCase()}
-        </h2>
-        <div
-          className={cn("h-px flex-1", {
-            "bg-slate-700": isDark,
-            "bg-slate-200": !isDark,
-          })}
-        />
+        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+        <h2 className="font-serif text-2xl tracking-[0.15em] text-center font-medium text-slate-800 dark:text-slate-200">{category.toUpperCase()}</h2>
+        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
       </div>
       <div className="space-y-6">{children}</div>
     </section>
   );
 });
 
-const DishCard = memo(function DishCard({ dish }: { dish: Dish }) {
-  const isDark = useIsDark();
+const DishCard = memo(function DishCard({ recipe }: { recipe: Recipe }) {
   return (
-    <article key={dish.title} className="group relative overflow-hidden">
+    <article key={recipe.title} className="group relative overflow-hidden">
       {/* Background Container */}
       <div className="absolute inset-0 z-0 flex">
         {/* Content Area (Left 60%) */}
-        <div className={`w-[60%] ${isDark ? "bg-slate-800" : "bg-white"}`} />
+        <div className="w-[60%] bg-white dark:bg-slate-800" />
 
         {/* Image Area (Right 40%) */}
         <div className="relative w-[40%] overflow-hidden">
           {/* Image Container - groups image and gradient together */}
           <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
             {/* Background Image */}
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${dish.images[0]})` }} />
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${recipe.images[0]})` }} />
             {/* Gradient Overlay */}
-            <div className={`absolute inset-0 ${isDark ? "bg-gradient-to-r from-slate-800 to-transparent" : "bg-gradient-to-r from-white via-white/65 to-transparent"}`} />
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/65 to-transparent dark:from-slate-800 dark:to-transparent" />
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <Link to={`/dishes/${dish.id}`}>
+      <Link to={`/dishes/${recipe.id}`}>
         <div className="relative z-10 p-6">
           <div className="flex justify-between items-start gap-4">
-            <div className={`flex-1 ${isDark ? "border-slate-600" : "border-slate-300"}`}>
+            <div className="flex-1 border-slate-300 dark:border-slate-600">
               {/* Title and Price Row */}
               <div className="flex justify-between mb-2">
-                <h3 className={`font-serif text-xl font-medium ${isDark ? "text-slate-300 group-hover:text-white" : "text-slate-700 group-hover:text-slate-900"}`}>{dish.title}</h3>
-                {/* <div className={`font-serif text-xl font-medium ${isDark ? "text-amber-400" : "text-amber-600"}`}>{dish.price}</div> */}
+                <h3 className="font-serif text-xl font-medium text-slate-700 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white">{recipe.title}</h3>
               </div>
 
               {/* Description */}
-              <p className={`text-sm mb-3 font-light leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>{dish.description}</p>
+              <p className="text-sm mb-3 font-light leading-relaxed text-slate-600 dark:text-slate-400">{recipe.description}</p>
 
               {/* Tags and Allergens */}
               <div className="flex flex-wrap gap-2 mb-3">
-                {dish.tags.map((tag) => (
-                  <span key={tag} className={`text-xs px-2 py-0.5 rounded-full backdrop-blur-sm ${isDark ? "bg-slate-700/80 text-slate-300" : "bg-slate-100/80 text-slate-600"}`}>
+                {recipe.tags.map((tag) => (
+                  <span key={tag} className="text-xs px-2 py-0.5 rounded-full backdrop-blur-sm bg-slate-100/80 text-slate-600 dark:bg-slate-700/80 dark:text-slate-300">
                     {tag}
                   </span>
                 ))}
-                {dish.allergens?.map((allergen) => (
-                  <span key={allergen} className={`text-xs px-2 py-0.5 rounded-full backdrop-blur-sm ${isDark ? "bg-rose-900/30 text-rose-300" : "bg-rose-50/80 text-rose-600"}`}>
+                {recipe.allergens?.map((allergen) => (
+                  <span key={allergen} className="text-xs px-2 py-0.5 rounded-full backdrop-blur-sm bg-rose-50/80 text-rose-600 dark:bg-rose-900/30 dark:text-rose-300">
                     {allergen}
                   </span>
                 ))}
@@ -190,22 +167,22 @@ const DishCard = memo(function DishCard({ dish }: { dish: Dish }) {
                 {/* Difficulty */}
                 <span
                   className={`
-            px-2 py-0.5 rounded text-xs backdrop-blur-sm
-            ${dish.difficulty === "Beginner" ? (isDark ? "bg-emerald-900/50 text-emerald-400" : "bg-emerald-100/80 text-emerald-700") : dish.difficulty === "Intermediate" ? (isDark ? "bg-amber-900/50 text-amber-400" : "bg-amber-100/80 text-amber-700") : isDark ? "bg-rose-900/50 text-rose-400" : "bg-rose-100/80 text-rose-700"}
-          `}
+                  px-2 py-0.5 rounded text-xs backdrop-blur-sm
+                  ${recipe.difficulty === "Beginner" ? "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400" : recipe.difficulty === "Intermediate" ? "bg-amber-100/80 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400" : "bg-rose-100/80 text-rose-700 dark:bg-rose-900/50 dark:text-rose-400"}
+                `}
                 >
-                  {dish.difficulty}
+                  {recipe.difficulty}
                 </span>
 
                 {/* Other Metrics */}
                 <div className="flex gap-4">
                   {[
-                    { icon: <GoClock className="w-4 h-4" />, value: dish.time },
-                    { icon: <FaGripfire className="w-4 h-4" />, value: `${dish.calories} kcal` },
-                    { icon: <TiStarFullOutline className="w-4 h-4" />, value: `${dish.ingredientsCount} items` },
-                    { icon: <FaUsers className="w-4 h-4" />, value: dish.servingSize },
+                    { icon: <GoClock className="w-4 h-4" />, value: recipe.time },
+                    { icon: <FaGripfire className="w-4 h-4" />, value: `${recipe.calories} kcal` },
+                    { icon: <TiStarFullOutline className="w-4 h-4" />, value: `${recipe.ingredientsCount} items` },
+                    { icon: <FaUsers className="w-4 h-4" />, value: recipe.servingSize },
                   ].map(({ icon, value }, index) => (
-                    <span key={index} className={`flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded ${isDark ? "bg-slate-800/50 text-slate-400" : "bg-white/50 text-slate-500"}`}>
+                    <span key={index} className="flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded bg-white/50 text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
                       {icon}
                       {value}
                     </span>
@@ -221,31 +198,11 @@ const DishCard = memo(function DishCard({ dish }: { dish: Dish }) {
 });
 
 const MenuFooter = memo(function MenuFooter() {
-  const isDark = useIsDark();
   return (
-    <div
-      className={cn("mt-16z pt-8 border-t", {
-        "border-slate-700": isDark,
-        "border-slate-200": !isDark,
-      })}
-    >
+    <div className="mt-16z pt-8 border-t border-slate-200 dark:border-slate-700">
       <div className="max-w-2xl mx-auto text-center">
-        <h3
-          className={cn("font-serif text-2xl mb-4 font-medium", {
-            "text-slate-200": isDark,
-            "text-slate-800": !isDark,
-          })}
-        >
-          CHEF&apos;S NOTE
-        </h3>
-        <p
-          className={cn("text-sm leading-relaxed font-light", {
-            "text-slate-400": isDark,
-            "text-slate-600": !isDark,
-          })}
-        >
-          Our menu changes daily based on seasonal ingredients and chef's inspiration. Each dish is crafted with care, considering dietary preferences and cooking expertise. Enjoy your culinary journey!
-        </p>
+        <h3 className="font-serif text-2xl mb-4 font-medium text-slate-800 dark:text-slate-200">CHEF&apos;S NOTE</h3>
+        <p className="text-sm leading-relaxed font-light text-slate-600 dark:text-slate-400">Our menu changes daily based on seasonal ingredients and chef's inspiration. Each dish is crafted with care, considering dietary preferences and cooking expertise. Enjoy your culinary journey!</p>
       </div>
     </div>
   );

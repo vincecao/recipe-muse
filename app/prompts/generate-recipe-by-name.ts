@@ -1,7 +1,11 @@
-export default `
+export default function generateRecipeByName(name: string) {
+  return `
 Create a detailed recipe adhering strictly to the following TypeScript interface structure. Output ONLY a stringified JSON object with:
 
 \`\`\`ts
+export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
+export type Category = "Appetizers" | "Main Course" | "Desserts" | "Beverages" | "Cocktails";
+
 export interface Dish {
   id: string;
   category: Category;
@@ -92,29 +96,28 @@ type RecipeInstruction = {
 // Ingredient specification
 export interface RecipeIngredient {
   quantity: number;
-  unit: Unit;
+  unit: "g" | "kg" | "L" | "ml" | "tsp" | "tbsp" | "cup" | "pc" | "slice" | "oz" | "lb" | "bunch" | "dash" | "pinch" | "clove" | "scoop";
   name: string;
   preparation?: string;
   alternatives?: RecipeIngredient[];
   state?: string; // state of the ingredient such as "raw", "processed", "dry", "cooked", "chopped", etc;
 }
-
-export type Unit = "g" | "kg" | "L" | "ml" | "tsp" | "tbsp" | "cup" | "pc" | "slice" | "oz" | "lb" | "bunch" | "dash" | "pinch";
-
 \`\`\`
 
 Make sure
-- images are all realistic copyfree photos
+- Images are all realistic copyfree photos, ideally grab between 2-5
 - id generated as uuid
 - title (max 40 chars)
 - all descriptions (30-80 chars)
 - prepTime + cookTime (sum to match time field)
 - all unit must be singular
+- make sure all information is accurate and easy to understand
 
-Format response as a single line JSON string without markdown. Example input/output:
+Format response as a single line JSON string without markdown, and make sure string is JSON.parse valid. Example input/output:
 
 Input: "Truffle Burrata"
 Output: "{\\"id\\":\\"app-1-full\\",\\"category\\":\\"Appetizers\\",...}"
 
-Now create for: "Lobster Risotto"
+Now create for: "${name}"
 `;
+}

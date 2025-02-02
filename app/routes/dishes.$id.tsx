@@ -1,36 +1,33 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getDishById } from "~/data/dish";
+import { getRecipeById } from "~/data/dish";
 import { FaGripfire, FaUsers } from "react-icons/fa";
 import { GoClock } from "react-icons/go";
 import { TiStarFullOutline } from "react-icons/ti";
-import { useIsDark } from "~/core/useIsDark";
 import { MenuLayout } from "./_index";
 import cn from "classnames";
-import { Dish, sampleRecipe } from "~/core/dish";
 import { memo, PropsWithChildren } from "react";
-import type { RecipeInstruction, RecipeIngredient, Difficulty, Recipe } from "~/core/dish";
-import { FiClock, FiThermometer, FiUsers, FiPackage, FiShoppingBag, FiList, FiTool, FiCheckCircle, FiFilm, FiInfo } from "react-icons/fi";
+import type { RecipeInstruction, RecipeIngredient, Recipe } from "~/core/dish";
+import { FiClock, FiThermometer, FiUsers, FiPackage, FiShoppingBag, FiList, FiTool, FiFilm, FiInfo } from "react-icons/fi";
 
 type LoaderData = {
-  dish: Dish;
   recipe: Recipe;
 };
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const dish = await getDishById(params.id!);
-  if (!dish) throw new Response("Not Found", { status: 404 });
-  return Response.json({ dish, recipe: sampleRecipe });
+  const recipe = await getRecipeById(params.id!);
+  if (!recipe) throw new Response("Not Found", { status: 404 });
+  return Response.json({ recipe });
 };
 
 export default function DishDetailPage() {
-  const { dish, recipe } = useLoaderData<LoaderData>();
+  const { recipe } = useLoaderData<LoaderData>();
 
   return (
     <MenuLayout>
       {/* Hero Section */}
-      <DishHero heroImgSrc={dish.images[0]}>
-        <DishHeroDetail dish={dish} />
+      <DishHero heroImgSrc={recipe.images[0]}>
+        <DishHeroDetail recipe={recipe} />
       </DishHero>
 
       {/* Additional content can go here */}
@@ -40,143 +37,78 @@ export default function DishDetailPage() {
 }
 
 const DishHero = memo(function DishHero({ heroImgSrc, children }: PropsWithChildren<{ heroImgSrc: string }>) {
-  const isDark = useIsDark();
   return (
-    <div className="relative h-[70vh] w-full">
+    <div className="relative h-[65vh] sm:h-[90vh] w-full">
       {/* Background Image */}
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${heroImgSrc})` }} />
 
-      {/* Gradient Overlay */}
-      <div
-        className={cn("absolute inset-0 bg-gradient-to-b from-transparent", {
-          "via-slate-900/40 to-slate-900": isDark,
-          "via-slate-50/50 to-slate-50": !isDark,
-        })}
-      />
+      {/* Enhanced Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-50/20 via-slate-50/50 to-slate-50 dark:from-slate-900/20 dark:via-slate-900/40 dark:to-slate-900" />
 
       {children}
     </div>
   );
 });
 
-const DishHeroDetail = memo(function DishHeroDetail({ dish }: { dish: Dish }) {
-  const isDark = useIsDark();
+const DishHeroDetail = memo(function DishHeroDetail({ recipe }: { recipe: Recipe }) {
   return (
-    <div className="absolute bottom-0 left-0 right-0 p-8">
-      <div
-        className={cn("max-w-4xl mx-auto backdrop-blur-md rounded-2xl p-8", {
-          "bg-slate-800/70 border border-white/10": isDark,
-          "bg-white/20 border border-black/5": !isDark,
-        })}
-      >
-        {/* Title and Price */}
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h1
-              className={cn("text-4xl font-serif font-medium mb-2", {
-                "text-white": isDark,
-                "text-slate-900": !isDark,
-              })}
-            >
-              {dish.title}
-            </h1>
-            <p
-              className={cn("text-lg font-light max-w-2xl", {
-                "text-slate-300": isDark,
-                "text-slate-700": !isDark,
-              })}
-            >
-              {dish.description}
-            </p>
+    <div className="absolute inset-x-0 bottom-10 p-3 sm:p-8">
+      <div className="max-w-4xl mx-auto backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-6 bg-white/20 border border-black/5 dark:bg-slate-800/70 dark:border-white/10">
+        {/* Title and Difficulty */}
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 mb-3 sm:mb-4">
+          <div className="space-y-1 sm:space-y-2">
+            <h1 className="text-2xl sm:text-4xl font-serif font-medium leading-tight text-slate-900 dark:text-white">{recipe.title}</h1>
+            <p className="text-sm sm:text-lg font-light max-w-2xl leading-snug text-slate-700 dark:text-slate-300">{recipe.description}</p>
           </div>
-
           {/* Difficulty Badge */}
-          <div>
+          <div className="flex items-center">
             <span
-              className={cn("px-4 py-1.5 rounded-full text-sm font-medium", {
+              className={cn("px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap", {
                 // Beginner
-                "bg-emerald-900/30 text-emerald-300": isDark && dish.difficulty === "Beginner",
-                "bg-emerald-100/80 text-emerald-700": !isDark && dish.difficulty === "Beginner",
+                "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300": recipe.difficulty === "Beginner",
                 // Intermediate
-                "bg-amber-900/30 text-amber-300": isDark && dish.difficulty === "Intermediate",
-                "bg-amber-100/80 text-amber-700": !isDark && dish.difficulty === "Intermediate",
+                "bg-amber-100/80 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300": recipe.difficulty === "Intermediate",
                 // Advanced
-                "bg-rose-900/30 text-rose-300": isDark && dish.difficulty === "Advanced",
-                "bg-rose-100/80 text-rose-700": !isDark && dish.difficulty === "Advanced",
+                "bg-rose-100/80 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300": recipe.difficulty === "Advanced",
               })}
             >
-              {dish.difficulty} Level
+              {recipe.difficulty} Level
             </span>
           </div>
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-3 mb-3 sm:mb-4">
           {[
-            { icon: <GoClock />, label: "Prep Time", value: dish.time },
-            { icon: <FaGripfire />, label: "Calories", value: `${dish.calories} kcal` },
-            { icon: <TiStarFullOutline />, label: "Ingredients", value: `${dish.ingredientsCount} items` },
-            { icon: <FaUsers />, label: "Serving", value: dish.servingSize },
+            { icon: <GoClock />, label: "Prep Time", value: recipe.time },
+            { icon: <FaGripfire />, label: "Calories", value: `${recipe.calories} kcal` },
+            { icon: <TiStarFullOutline />, label: "Ingredients", value: `${recipe.ingredientsCount} items` },
+            { icon: <FaUsers />, label: "Serving", value: recipe.servingSize },
           ].map((metric, index) => (
-            <div
-              key={index}
-              className={cn("flex items-center gap-3 p-3 rounded-xl", {
-                "bg-slate-800/80 border border-white/5": isDark,
-                "bg-white/80 border border-black/5": !isDark,
-              })}
-            >
-              <div
-                className={cn("text-xl", {
-                  "text-amber-400": isDark,
-                  "text-amber-600": !isDark,
-                })}
-              >
-                {metric.icon}
-              </div>
+            <div key={index} className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/80 border border-black/5 dark:bg-slate-800/80 dark:border-white/5">
+              <div className="text-lg sm:text-xl text-amber-600 dark:text-amber-400">{metric.icon}</div>
               <div>
-                <div
-                  className={cn("text-xs", {
-                    "text-slate-400": isDark,
-                    "text-slate-500": !isDark,
-                  })}
-                >
-                  {metric.label}
-                </div>
-                <div
-                  className={cn("font-medium", {
-                    "text-slate-200": isDark,
-                    "text-slate-800": !isDark,
-                  })}
-                >
-                  {metric.value}
-                </div>
+                <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">{metric.label}</div>
+                <div className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">{metric.value}</div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Tags and Allergens Sections */}
-        <div className="space-y-4">
+        {/* Tags and Allergens */}
+        <div className="space-y-2 sm:space-y-4">
           {/* Tags Section */}
-          <div className="space-y-2">
-            <h3
-              className={cn("text-sm font-medium", {
-                "text-slate-300": isDark,
-                "text-slate-600": !isDark,
-              })}
-            >
-              Features & Categories
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {dish.tags.map((tag) => (
+          <div className="space-y-1 sm:space-y-2">
+            <h3 className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">Features & Categories</h3>
+            <div className="flex flex-wrap gap-1 sm:gap-2">
+              {recipe.tags.map((tag) => (
                 <span
                   key={tag}
-                  className={cn("px-3 py-1 rounded-full text-sm flex items-center gap-1", {
-                    "bg-slate-700/50 text-slate-300 hover:bg-slate-700/70": isDark,
-                    "bg-slate-100/80 text-slate-700 hover:bg-slate-200/80": !isDark,
-                  })}
+                  className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-base flex items-center gap-1 
+                           bg-slate-100/80 text-slate-700 hover:bg-slate-200/80 
+                           dark:bg-slate-700/50 dark:text-slate-300 dark:hover:bg-slate-700/70"
                 >
-                  <span className="text-amber-400">•</span>
+                  <span className="text-amber-400 text-[8px] sm:text-sm">•</span>
                   {tag.charAt(0).toUpperCase() + tag.slice(1)}
                 </span>
               ))}
@@ -184,25 +116,19 @@ const DishHeroDetail = memo(function DishHeroDetail({ dish }: { dish: Dish }) {
           </div>
 
           {/* Allergens Section */}
-          {dish.allergens && dish.allergens.length > 0 && (
-            <div className="space-y-2">
-              <h3
-                className={cn("text-sm font-medium flex items-center gap-2", {
-                  "text-rose-300": isDark,
-                  "text-rose-600": !isDark,
-                })}
-              >
-                <span>⚠️</span>
-                <span>Allergy Information</span>
+          {recipe.allergens && recipe.allergens.length > 0 && (
+            <div className="space-y-1 sm:space-y-2">
+              <h3 className="text-xs sm:text-sm font-medium flex items-center gap-1 text-rose-600 dark:text-rose-300">
+                <span className="text-[10px] sm:text-sm">⚠️</span>
+                <span>Allergy Info</span>
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {dish.allergens.map((allergen) => (
+              <div className="flex flex-wrap gap-1 sm:gap-2">
+                {recipe.allergens.map((allergen) => (
                   <span
                     key={allergen}
-                    className={cn("px-3 py-1 rounded-full text-sm flex items-center gap-1", {
-                      "bg-rose-900/30 text-rose-300 hover:bg-rose-900/40": isDark,
-                      "bg-rose-100/80 text-rose-700 hover:bg-rose-200/80": !isDark,
-                    })}
+                    className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-base
+                             bg-rose-100/80 text-rose-700 hover:bg-rose-200/80 
+                             dark:bg-rose-900/30 dark:text-rose-300 dark:hover:bg-rose-900/40"
                   >
                     {allergen.charAt(0).toUpperCase() + allergen.slice(1)}
                   </span>
@@ -216,92 +142,25 @@ const DishHeroDetail = memo(function DishHeroDetail({ dish }: { dish: Dish }) {
   );
 });
 
-const DifficultyBadge = memo(function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
-  const isDark = useIsDark();
-  const difficultyStyles = {
-    Beginner: cn("px-4 py-1.5 rounded-full text-sm font-medium", {
-      "bg-emerald-900/30 text-emerald-300": isDark,
-      "bg-emerald-100/80 text-emerald-700": !isDark,
-    }),
-    Intermediate: cn("px-4 py-1.5 rounded-full text-sm font-medium", {
-      "bg-amber-900/30 text-amber-300": isDark,
-      "bg-amber-100/80 text-amber-700": !isDark,
-    }),
-    Advanced: cn("px-4 py-1.5 rounded-full text-sm font-medium", {
-      "bg-rose-900/30 text-rose-300": isDark,
-      "bg-rose-100/80 text-rose-700": !isDark,
-    }),
-  };
-
-  return <span className={difficultyStyles[difficulty]}>{difficulty} Level</span>;
-});
-
 const NutritionFacts = memo(function NutritionFacts({ calories, allergens }: { calories: number; allergens?: string[] }) {
-  const isDark = useIsDark();
   return (
-    <div
-      className={cn("p-8 backdrop-blur-md rounded-2xl", {
-        "bg-slate-800/70 border border-white/10": isDark,
-        "bg-white/20 border border-black/5": !isDark,
-      })}
-    >
-      <h3
-        className={cn("text-2xl font-serif mb-6", {
-          "text-white": isDark,
-          "text-slate-900": !isDark,
-        })}
-      >
-        Nutrition
-      </h3>
+    <div className="p-8 backdrop-blur-md rounded-2xl bg-white/20 border border-black/5 dark:bg-slate-800/70 dark:border-white/10">
+      <h3 className="text-2xl font-serif mb-6 text-slate-900 dark:text-white">Nutrition</h3>
       <div className="flex items-baseline gap-2 mb-4">
-        <span
-          className={cn("text-4xl font-light", {
-            "text-amber-400": isDark,
-            "text-amber-600": !isDark,
-          })}
-        >
-          {calories}
-        </span>
-        <span
-          className={cn("text-sm", {
-            "text-slate-400": isDark,
-            "text-slate-500": !isDark,
-          })}
-        >
-          calories per serving
-        </span>
+        <span className="text-4xl font-light text-amber-600 dark:text-amber-400">{calories}</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">calories per serving</span>
       </div>
       <div className="space-y-4">
-        <h4
-          className={cn("text-sm font-medium", {
-            "text-rose-300": isDark,
-            "text-rose-600": !isDark,
-          })}
-        >
-          ⚠️ Allergy Information
-        </h4>
+        <h4 className="text-sm font-medium text-rose-600 dark:text-rose-300">⚠️ Allergy Information</h4>
         <div className="flex flex-wrap gap-2">
           {allergens?.length ? (
             allergens.map((allergen, index) => (
-              <span
-                key={index}
-                className={cn("px-3 py-1 rounded-full text-sm", {
-                  "bg-rose-900/30 text-rose-300 hover:bg-rose-900/40": isDark,
-                  "bg-rose-100/80 text-rose-700 hover:bg-rose-200/80": !isDark,
-                })}
-              >
+              <span key={index} className="px-3 py-1 rounded-full text-sm bg-rose-100/80 text-rose-700 hover:bg-rose-200/80 dark:bg-rose-900/30 dark:text-rose-300 dark:hover:bg-rose-900/40">
                 {allergen.charAt(0).toUpperCase() + allergen.slice(1)}
               </span>
             ))
           ) : (
-            <span
-              className={cn("text-sm", {
-                "text-slate-400": isDark,
-                "text-slate-500": !isDark,
-              })}
-            >
-              None specified
-            </span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">None specified</span>
           )}
         </div>
       </div>
@@ -310,60 +169,20 @@ const NutritionFacts = memo(function NutritionFacts({ calories, allergens }: { c
 });
 
 const IngredientsList = memo(function IngredientsList({ ingredients }: { ingredients: RecipeIngredient[] }) {
-  const isDark = useIsDark();
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <div className="grid grid-cols-1 gap-1 sm:gap-2">
       {ingredients.map((ingredient, index) => (
-        <div
-          key={index}
-          className={cn("flex items-center justify-between py-2.5 px-4 rounded-lg backdrop-blur-sm transition-colors", {
-            "bg-slate-800/40 hover:bg-slate-800/60 border border-white/5": isDark,
-            "bg-white/40 hover:bg-white/60 border border-black/5": !isDark,
-          })}
-        >
+        <div key={index} className="flex items-center justify-between py-1.5 px-3 sm:py-2.5 sm:px-4 rounded-lg backdrop-blur-sm bg-white/40 hover:bg-white/60 border border-black/5 dark:bg-slate-800/40 dark:hover:bg-slate-800/60 dark:border-white/5">
           <div className="flex items-center gap-3 min-w-0">
-            <div
-              className={cn("w-1 h-4 rounded-full", {
-                "bg-amber-400/30": isDark,
-                "bg-amber-600/30": !isDark,
-              })}
-            />
+            <div className="w-1 h-4 rounded-full bg-amber-600/30 dark:bg-amber-400/30" />
             <div className="min-w-0 truncate">
-              <span
-                className={cn("font-medium", {
-                  "text-slate-200": isDark,
-                  "text-slate-800": !isDark,
-                })}
-              >
-                {ingredient.name}
-              </span>
-              {ingredient.preparation && (
-                <span
-                  className={cn("text-sm ml-2", {
-                    "text-slate-400": isDark,
-                    "text-slate-500": !isDark,
-                  })}
-                >
-                  · {ingredient.preparation}
-                </span>
-              )}
+              <span className="font-medium text-slate-800 dark:text-slate-200">{ingredient.name}</span>
+              {ingredient.preparation && <span className="text-sm ml-2 text-slate-500 dark:text-slate-400">· {ingredient.preparation}</span>}
             </div>
           </div>
-          <div
-            className={cn("text-sm tabular-nums pl-3", {
-              "text-slate-300": isDark,
-              "text-slate-600": !isDark,
-            })}
-          >
+          <div className="text-sm tabular-nums pl-3 text-slate-600 dark:text-slate-300">
             {ingredient.quantity}
-            <span
-              className={cn("text-xs ml-1", {
-                "text-slate-400": isDark,
-                "text-slate-500": !isDark,
-              })}
-            >
-              {ingredient.unit}
-            </span>
+            <span className="text-xs ml-1 text-slate-500 dark:text-slate-400">{ingredient.unit}</span>
           </div>
         </div>
       ))}
@@ -372,61 +191,30 @@ const IngredientsList = memo(function IngredientsList({ ingredients }: { ingredi
 });
 
 const InstructionsStepper = memo(function InstructionsStepper({ instructions }: { instructions: RecipeInstruction[] }) {
-  const isDark = useIsDark();
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {instructions
         .sort((a, b) => a.order - b.order)
         .map((instruction) => (
-          <div
-            key={instruction.order}
-            className={cn("relative pl-8", {
-              "border-l border-white/5": isDark,
-              "border-l border-black/5": !isDark,
-            })}
-          >
+          <div key={instruction.order} className="relative pl-6 sm:pl-8 border-l border-black/5 dark:border-white/5">
             {/* Step Number */}
-            <div
-              className={cn("absolute -left-2.5 w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium", {
-                "bg-amber-400/20 text-amber-300 border border-amber-400/30": isDark,
-                "bg-amber-600/10 text-amber-700 border border-amber-600/30": !isDark,
-              })}
-            >
-              {instruction.order}
-            </div>
+            <div className="absolute left-0 top-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-xs bg-amber-600/10 text-amber-700 border border-amber-600/30 dark:bg-amber-400/20 dark:text-amber-300 dark:border-amber-400/30">{instruction.order}</div>
 
             <div className="space-y-2">
               {/* Description and Metadata Row */}
               <div className="flex items-start justify-between gap-4">
-                <p
-                  className={cn("text-base leading-relaxed pt-0.5", {
-                    "text-slate-200": isDark,
-                    "text-slate-800": !isDark,
-                  })}
-                >
-                  {instruction.description}
-                </p>
+                <p className="text-base leading-relaxed pt-0.5 text-slate-800 dark:text-slate-200">{instruction.description}</p>
 
                 {/* Compact Metadata */}
                 <div className="flex flex-shrink-0 items-center gap-2 text-xs">
                   {instruction.duration && (
-                    <span
-                      className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full", {
-                        "bg-slate-800/60 text-slate-300": isDark,
-                        "bg-slate-100/80 text-slate-600": !isDark,
-                      })}
-                    >
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100/80 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">
                       <FiClock className="w-3 h-3" />
                       {instruction.duration}m
                     </span>
                   )}
                   {instruction.temperature && (
-                    <span
-                      className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full", {
-                        "bg-rose-900/30 text-rose-300": isDark,
-                        "bg-rose-100/80 text-rose-700": !isDark,
-                      })}
-                    >
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100/80 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
                       <FiThermometer className="w-3 h-3" />
                       {instruction.temperature.value}°{instruction.temperature.unit}
                     </span>
@@ -438,25 +226,13 @@ const InstructionsStepper = memo(function InstructionsStepper({ instructions }: 
               {(instruction.toolsNeeded?.length || instruction.ingredientsUsed?.length) && (
                 <div className="flex flex-wrap gap-1.5 text-xs">
                   {instruction.toolsNeeded?.map((tool) => (
-                    <span
-                      key={tool}
-                      className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded", {
-                        "bg-slate-800/40 text-slate-300": isDark,
-                        "bg-slate-100/80 text-slate-600": !isDark,
-                      })}
-                    >
+                    <span key={tool} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-100/80 text-slate-600 dark:bg-slate-800/40 dark:text-slate-300">
                       <FiTool className="w-3 h-3" />
                       {tool}
                     </span>
                   ))}
                   {instruction.ingredientsUsed?.map((ingredient) => (
-                    <span
-                      key={ingredient}
-                      className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded", {
-                        "bg-emerald-900/20 text-emerald-300": isDark,
-                        "bg-emerald-100/80 text-emerald-700": !isDark,
-                      })}
-                    >
+                    <span key={ingredient} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300">
                       <FiPackage className="w-3 h-3" />
                       {ingredient}
                     </span>
@@ -466,12 +242,7 @@ const InstructionsStepper = memo(function InstructionsStepper({ instructions }: 
 
               {/* Tips - Inline */}
               {instruction.tips && (
-                <div
-                  className={cn("text-xs px-2 py-1 rounded flex items-start gap-1.5", {
-                    "bg-amber-900/20 text-amber-200": isDark,
-                    "bg-amber-50/80 text-amber-800": !isDark,
-                  })}
-                >
+                <div className="text-xs px-2 py-1 rounded flex items-start gap-1.5 bg-amber-50/80 text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
                   <FiInfo className="w-3 h-3 mt-0.5 flex-shrink-0" />
                   {instruction.tips}
                 </div>
@@ -481,13 +252,7 @@ const InstructionsStepper = memo(function InstructionsStepper({ instructions }: 
               {instruction.images && instruction.images.length > 0 && (
                 <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2">
                   {instruction.images.map((img, idx) => (
-                    <div
-                      key={idx}
-                      className={cn("relative w-24 h-24 flex-shrink-0 rounded overflow-hidden", {
-                        "border border-white/5": isDark,
-                        "border border-black/5": !isDark,
-                      })}
-                    >
+                    <div key={idx} className="relative w-24 h-24 flex-shrink-0 rounded overflow-hidden border border-black/5 dark:border-white/5">
                       <img src={img} alt={`Step ${instruction.order}`} className="w-full h-full object-cover" />
                     </div>
                   ))}
@@ -501,57 +266,24 @@ const InstructionsStepper = memo(function InstructionsStepper({ instructions }: 
 });
 
 const RecipeDetail = memo(function DishDetail({ recipe }: { recipe: Recipe }) {
-  const isDark = useIsDark();
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 space-y-16">
       {/* Header Section */}
       <header className="space-y-8 text-center">
         {/* Category and Type */}
-        <div className="flex justify-center gap-3">
-          <span
-            className={cn("px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md", {
-              "bg-amber-900/30 text-amber-300": isDark,
-              "bg-amber-100/80 text-amber-700": !isDark,
-            })}
-          >
-            {recipe.category} {/* e.g., "Main Course", "Dessert" */}
-          </span>
-          <span
-            className={cn("px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md", {
-              "bg-slate-800/80 text-slate-300": isDark,
-              "bg-white/80 text-slate-700": !isDark,
-            })}
-          >
-            {recipe.cuisine} {/* e.g., "Italian", "Japanese" */}
-          </span>
+        <div className="flex flex-wrap justify-center gap-2">
+          <span className="px-3 py-1 sm:px-4 sm:py-2 rounded-full text-sm font-medium backdrop-blur-md bg-amber-100/80 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">{recipe.category}</span>
+          <span className="px-3 py-1 sm:px-4 sm:py-2 rounded-full text-sm font-medium backdrop-blur-md bg-white/80 text-slate-700 dark:bg-slate-800/80 dark:text-slate-300">{recipe.cuisine}</span>
         </div>
 
-        <h1
-          className={cn("text-5xl font-serif mb-6", {
-            "text-white": isDark,
-            "text-slate-900": !isDark,
-          })}
-        >
-          {recipe.title}
-        </h1>
+        <h1 className="text-5xl font-serif mb-6 text-slate-900 dark:text-white">{recipe.title}</h1>
 
         {/* Required Equipment */}
         {recipe.tools && (
           <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
             {recipe.tools.map((tool, index) => (
-              <span
-                key={index}
-                className={cn("px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 backdrop-blur-sm", {
-                  "bg-slate-800/60 text-slate-300 border border-white/5": isDark,
-                  "bg-white/60 text-slate-700 border border-black/5": !isDark,
-                })}
-              >
-                <FiTool
-                  className={cn("w-3.5 h-3.5", {
-                    "text-amber-400": isDark,
-                    "text-amber-600": !isDark,
-                  })}
-                />
+              <span key={index} className="px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 backdrop-blur-sm bg-white/60 text-slate-700 border border-black/5 dark:bg-slate-800/60 dark:text-slate-300 dark:border-white/5">
+                <FiTool className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 {tool}
               </span>
             ))}
@@ -559,44 +291,39 @@ const RecipeDetail = memo(function DishDetail({ recipe }: { recipe: Recipe }) {
         )}
 
         {/* Key Info */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center gap-4">
-            <DifficultyBadge difficulty={recipe.difficulty} />
-            <span
-              className={cn("flex items-center gap-2 text-lg", {
-                "text-slate-300": isDark,
-                "text-slate-600": !isDark,
-              })}
-            >
-              <FiClock className="w-5 h-5" />
-              Total: {recipe.time}
+        <div className="flex flex-col items-center gap-6">
+          {/* Metadata Row */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 bg-opacity-50 backdrop-blur-sm rounded-2xl p-4 border border-black/5 dark:border-white/10 transition-colors duration-300">
+            {/* Difficulty Level */}
+            <div className="text-center">
               <span
-                className={cn("text-sm", {
-                  "text-slate-400": isDark,
-                  "text-slate-500": !isDark,
-                })}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium
+                ${recipe.difficulty === "Beginner" ? "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" : ""}
+                ${recipe.difficulty === "Intermediate" ? "bg-amber-100/80 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" : ""}
+                ${recipe.difficulty === "Advanced" ? "bg-rose-100/80 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300" : ""}`}
               >
-                ({recipe.prepTime}m prep + {recipe.cookTime}m cooking)
+                {recipe.difficulty} Level
               </span>
-            </span>
-            <span
-              className={cn("flex items-center gap-2 text-lg", {
-                "text-slate-300": isDark,
-                "text-slate-600": !isDark,
-              })}
-            >
-              <FiUsers className="w-5 h-5" />
-              Serves {recipe.servingSize}
-            </span>
+            </div>
+
+            {/* Time Info */}
+            <div className="text-center">
+              <FiClock className="w-6 h-6 mx-auto mb-1 text-amber-600 dark:text-amber-400" />
+              <p className="font-serif text-base text-slate-800 dark:text-slate-100">{recipe.prepTime + recipe.cookTime}m Total</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                ({recipe.prepTime}m prep + {recipe.cookTime}m cook)
+              </p>
+            </div>
+
+            {/* Serving Size */}
+            <div className="text-center">
+              <FiUsers className="w-6 h-6 mx-auto mb-1 text-amber-600 dark:text-amber-400" />
+              <p className="font-serif text-base text-slate-800 dark:text-slate-100">Serves {recipe.servingSize.replace("For ", "")}</p>
+            </div>
           </div>
-          <p
-            className={cn("text-xl font-light max-w-3xl mx-auto leading-relaxed", {
-              "text-slate-300": isDark,
-              "text-slate-700": !isDark,
-            })}
-          >
-            {recipe.description}
-          </p>
+
+          {/* Description */}
+          <p className="text-center font-serif text-xl italic text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">&quot;{recipe.description}&quot;</p>
         </div>
       </header>
 
@@ -605,24 +332,20 @@ const RecipeDetail = memo(function DishDetail({ recipe }: { recipe: Recipe }) {
         <div>
           {(() => {
             // Filter out invalid image URLs first
-            const validImages = recipe.images.filter(img => 
-              img && 
-              (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('/'))
-            );
+            const validImages = recipe.images.filter((img) => img && (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("/")));
 
             if (validImages.length === 0) return null;
 
             return (
-              <div className={cn(
-                "grid gap-6",
-                {
+              <div
+                className={cn("grid gap-6", {
                   "grid-cols-1": validImages.length === 1,
                   "grid-cols-1 md:grid-cols-2": validImages.length === 2,
                   "grid-cols-1 md:grid-cols-3": validImages.length === 3,
                   "grid-cols-2 md:grid-cols-4": validImages.length === 4,
                   "grid-cols-2 md:grid-cols-3": validImages.length > 4,
-                }
-              )}>
+                })}
+              >
                 {validImages.slice(0, 6).map((img, index) => {
                   const isSingleImage = validImages.length === 1;
                   const isFirstOfMany = validImages.length > 4 && index === 0;
@@ -630,24 +353,17 @@ const RecipeDetail = memo(function DishDetail({ recipe }: { recipe: Recipe }) {
                   return (
                     <div
                       key={index}
-                      className={cn(
-                        "relative group overflow-hidden rounded-2xl border transition-transform duration-300 hover:scale-[1.02]",
-                        {
-                          "border-white/10": isDark,
-                          "border-black/5": !isDark,
-                          "col-span-1 md:col-span-2 aspect-video": isSingleImage,
-                          "col-span-2 aspect-video": isFirstOfMany,
-                          "aspect-square": !isSingleImage && !isFirstOfMany,
-                        }
-                      )}
+                      className={cn("relative group overflow-hidden rounded-2xl border transition-transform duration-300 hover:scale-[1.02]", {
+                        "border-black/5 dark:border-white/10": true,
+                        "col-span-1 md:col-span-2 aspect-video": isSingleImage,
+                        "col-span-2 aspect-video": isFirstOfMany,
+                        "aspect-square": !isSingleImage && !isFirstOfMany,
+                      })}
                     >
                       <img
                         src={img}
                         alt={`${recipe.title} preparation ${index + 1}`}
-                        className={cn(
-                          "object-cover w-full h-full",
-                          "transition-transform duration-500 group-hover:scale-105"
-                        )}
+                        className={cn("object-cover w-full h-full", "transition-transform duration-500 group-hover:scale-105")}
                         loading={index === 0 ? "eager" : "lazy"}
                         onError={(e) => {
                           const parent = e.currentTarget.parentElement;
@@ -662,24 +378,8 @@ const RecipeDetail = memo(function DishDetail({ recipe }: { recipe: Recipe }) {
                           }
                         }}
                       />
-                      <div
-                        className={cn(
-                          "absolute inset-0 transition-opacity duration-300",
-                          {
-                            "bg-gradient-to-t from-slate-900/40 via-transparent to-transparent": isDark,
-                            "bg-gradient-to-t from-slate-50/40 via-transparent to-transparent": !isDark,
-                          }
-                        )}
-                      />
-                      {index === 5 && validImages.length > 6 && (
-                        <div className={cn(
-                          "absolute inset-0 flex items-center justify-center",
-                          "bg-black/50 backdrop-blur-sm",
-                          "text-white text-lg font-medium"
-                        )}>
-                          +{validImages.length - 6} more
-                        </div>
-                      )}
+                      <div className="absolute inset-0 transition-opacity duration-300 bg-gradient-to-t from-slate-50/40 via-transparent to-transparent dark:from-slate-900/40" />
+                      {index === 5 && validImages.length > 6 && <div className={cn("absolute inset-0 flex items-center justify-center", "bg-black/50 backdrop-blur-sm", "text-white text-lg font-medium")}>+{validImages.length - 6} more</div>}
                     </div>
                   );
                 })}
@@ -690,124 +390,29 @@ const RecipeDetail = memo(function DishDetail({ recipe }: { recipe: Recipe }) {
       )}
 
       {/* Stats Overview */}
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="grid md:grid-cols-2 gap-8">
         <NutritionFacts calories={recipe.calories} allergens={recipe.allergens} />
 
-        <div
-          className={cn("p-8 backdrop-blur-md rounded-2xl", {
-            "bg-slate-800/70 border border-white/10": isDark,
-            "bg-white/20 border border-black/5": !isDark,
-          })}
-        >
-          <h3
-            className={cn("text-2xl font-serif mb-6", {
-              "text-white": isDark,
-              "text-slate-900": !isDark,
-            })}
-          >
-            Ingredients Overview
-          </h3>
+        <div className="p-8 backdrop-blur-md rounded-2xl bg-white/20 border border-black/5 dark:bg-slate-800/70 dark:border-white/10">
+          <h3 className="text-2xl font-serif mb-6 text-slate-900 dark:text-white">Ingredients Overview</h3>
           <div className="flex items-center gap-4 mb-6">
-            <div
-              className={cn("p-4 rounded-xl", {
-                "bg-amber-900/30": isDark,
-                "bg-amber-100/80": !isDark,
-              })}
-            >
-              <FiPackage
-                className={cn("w-8 h-8", {
-                  "text-amber-300": isDark,
-                  "text-amber-700": !isDark,
-                })}
-              />
+            <div className="p-4 rounded-xl bg-amber-100/80 dark:bg-amber-900/30">
+              <FiPackage className="w-8 h-8 text-amber-700 dark:text-amber-300" />
             </div>
             <div>
-              <span
-                className={cn("text-4xl font-light", {
-                  "text-white": isDark,
-                  "text-slate-900": !isDark,
-                })}
-              >
-                {recipe.ingredientsCount}
-              </span>
-              <span
-                className={cn("text-sm ml-2", {
-                  "text-slate-400": isDark,
-                  "text-slate-500": !isDark,
-                })}
-              >
-                ingredients needed
-              </span>
+              <span className="text-4xl font-light text-slate-900 dark:text-white">{recipe.ingredientsCount}</span>
+              <span className="text-sm ml-2 text-slate-500 dark:text-slate-400">ingredients needed</span>
             </div>
           </div>
-          <p
-            className={cn("text-sm", {
-              "text-slate-400": isDark,
-              "text-slate-500": !isDark,
-            })}
-          >
-            Some ingredients have substitutes available
-          </p>
-        </div>
-
-        <div
-          className={cn("p-8 backdrop-blur-md rounded-2xl", {
-            "bg-slate-800/70 border border-white/10": isDark,
-            "bg-white/20 border border-black/5": !isDark,
-          })}
-        >
-          <h3
-            className={cn("text-2xl font-serif mb-6", {
-              "text-white": isDark,
-              "text-slate-900": !isDark,
-            })}
-          >
-            Estimated Cost
-          </h3>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span
-              className={cn("text-4xl font-light", {
-                "text-amber-400": isDark,
-                "text-amber-600": !isDark,
-              })}
-            >
-              {recipe.price}
-            </span>
-            <span
-              className={cn("text-sm", {
-                "text-slate-400": isDark,
-                "text-slate-500": !isDark,
-              })}
-            >
-              per portion
-            </span>
-          </div>
-          <p
-            className={cn("text-sm", {
-              "text-slate-400": isDark,
-              "text-slate-500": !isDark,
-            })}
-          >
-            Prices may vary by location and season
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Some ingredients have substitutes available</p>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="space-y-16">
         <section className="space-y-8">
-          <h2
-            className={cn("text-3xl font-serif flex items-center gap-4", {
-              "text-white": isDark,
-              "text-slate-900": !isDark,
-            })}
-          >
-            <span
-              className={cn("w-8 h-8", {
-                "text-amber-400": isDark,
-                "text-amber-600": !isDark,
-              })}
-            >
+          <h2 className="text-3xl font-serif flex items-center gap-4 text-slate-900 dark:text-white">
+            <span className="w-8 h-8 text-amber-600 dark:text-amber-400">
               <FiShoppingBag className="w-full h-full" />
             </span>
             Ingredients List
@@ -816,18 +421,8 @@ const RecipeDetail = memo(function DishDetail({ recipe }: { recipe: Recipe }) {
         </section>
 
         <section className="space-y-8">
-          <h2
-            className={cn("text-3xl font-serif flex items-center gap-4", {
-              "text-white": isDark,
-              "text-slate-900": !isDark,
-            })}
-          >
-            <span
-              className={cn("w-8 h-8", {
-                "text-amber-400": isDark,
-                "text-amber-600": !isDark,
-              })}
-            >
+          <h2 className="text-3xl font-serif flex items-center gap-4 text-slate-900 dark:text-white">
+            <span className="w-8 h-8 text-amber-600 dark:text-amber-400">
               <FiList className="w-full h-full" />
             </span>
             Step-by-Step Instructions
@@ -837,28 +432,13 @@ const RecipeDetail = memo(function DishDetail({ recipe }: { recipe: Recipe }) {
 
         {recipe.videoUrl && (
           <section className="space-y-8">
-            <h2
-              className={cn("text-3xl font-serif flex items-center gap-4", {
-                "text-white": isDark,
-                "text-slate-900": !isDark,
-              })}
-            >
-              <span
-                className={cn("w-8 h-8", {
-                  "text-amber-400": isDark,
-                  "text-amber-600": !isDark,
-                })}
-              >
+            <h2 className="text-3xl font-serif flex items-center gap-4 text-slate-900 dark:text-white">
+              <span className="w-8 h-8 text-amber-600 dark:text-amber-400">
                 <FiFilm className="w-full h-full" />
               </span>
               Video Guide
             </h2>
-            <div
-              className={cn("aspect-video rounded-2xl overflow-hidden", {
-                "bg-slate-800/80 border border-white/5": isDark,
-                "bg-white/80 border border-black/5": !isDark,
-              })}
-            >
+            <div className="aspect-video rounded-2xl overflow-hidden bg-white/80 border border-black/5 dark:bg-slate-800/80 dark:border-white/5">
               <iframe src={recipe.videoUrl} className="w-full h-full" allowFullScreen title={`How to make ${recipe.title}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
             </div>
           </section>
