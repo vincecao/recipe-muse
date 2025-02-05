@@ -1,7 +1,12 @@
 import { useMantineColorScheme } from "@mantine/core";
 import { memo, useEffect } from "react";
 import { FiSun, FiMoon } from "react-icons/fi";
-import { useIsDark } from "~/core/useIsDark";
+
+function useIsDark() {
+  const { colorScheme } = useMantineColorScheme();
+  return colorScheme === "dark";
+}
+
 
 const ThemeButton = memo(function ThemeButtonComponent() {
   const { toggleColorScheme } = useMantineColorScheme();

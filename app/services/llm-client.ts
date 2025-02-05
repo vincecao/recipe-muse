@@ -18,11 +18,11 @@ export type LLMRequest = {
 
 export class LLMClient {
   private readonly deepseekApiKey: string;
-  private readonly anthropic: Anthropic;
+  private readonly anthropicClient: Anthropic;
 
   constructor() {
     this.deepseekApiKey = process.env.DEEPSEEK_API_KEY ?? ""; // Store in .env
-    this.anthropic = new Anthropic();
+    this.anthropicClient = new Anthropic();
   }
 
   async generate(payload: LLMRequest): Promise<LLMResponse> {
@@ -31,9 +31,9 @@ export class LLMClient {
     // Automatically choose provider based on model
     const provider = this.getProviderForModel(model);
     if (provider === "deepseek") {
-      return this.callDeepSeekAPI(prompt, model, temperature, max_tokens);
+      return this.callDeepSeek(prompt, model, temperature, max_tokens);
     } else if (provider === "anthropic") {
-      return this.callAnthropicAPI(prompt, model, temperature, max_tokens);
+      return this.callAnthropic(prompt, model, temperature, max_tokens);
     } else {
       throw new Error("Invalid model specified");
     }
@@ -49,7 +49,7 @@ export class LLMClient {
     }
   }
 
-  private async callDeepSeekAPI(prompt: string, model: string, temperature: number, max_tokens: number): Promise<LLMResponse> {
+  private async callDeepSeek(prompt: string, model: string, temperature: number, max_tokens: number): Promise<LLMResponse> {
     const response = await fetch("https://api.deepseek.com/v1/completions", {
       method: "POST",
       headers: {
@@ -76,8 +76,8 @@ export class LLMClient {
     };
   }
 
-  private async callAnthropicAPI(prompt: string, model: string, temperature: number, max_tokens: number): Promise<LLMResponse> {
-    const msg = await this.anthropic.messages.create({
+  private async callAnthropic(prompt: string, model: string, temperature: number, max_tokens: number): Promise<LLMResponse> {
+    const msg = await this.anthropicClient.messages.create({
       model,
       max_tokens,
       temperature,

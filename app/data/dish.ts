@@ -1,4 +1,4 @@
-import { Recipe } from "~/core/dish";
+import { Recipe } from "~/core/type";
 
 export const mockDishNames = ["Truffle Burrata", "Tuna Tartare"];
 

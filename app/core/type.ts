@@ -1,3 +1,5 @@
+import { LLMRequest } from "~/services/llm-client";
+
 export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 export type Category = "Appetizers" | "Main Course" | "Desserts" | "Beverages" | "Cocktails";
 
@@ -96,4 +98,10 @@ export interface RecipeIngredient {
   preparation?: string;
   alternatives?: RecipeIngredient[];
   state?: string; // state of the ingredient such as "raw", "processed", "dry", "cooked", "chopped", etc;
+}
+
+export type StoredRecipe = Recipe & {
+  version: string,
+  model: LLMRequest['model'],
+  createdAt?: Date,
 }

@@ -1,8 +1,7 @@
 import { Link } from "@remix-run/react";
-import { MenuLayout } from "./_index";
 import { GiCookingPot, GiMeal, GiSpoon } from "react-icons/gi";
 import { MdOutlineTimer, MdRestaurantMenu } from "react-icons/md";
-import cn from "classnames";
+import { MenuLayout } from "./_index/menu";
 
 export default function AboutUsPage() {
   return (
@@ -11,7 +10,7 @@ export default function AboutUsPage() {
         {/* Hero Section */}
         <div className="text-center space-y-6">
           <h1 className="font-serif text-4xl md:text-5xl font-medium text-slate-800 dark:text-slate-200">Revolutionizing Meal Planning</h1>
-          <p className="text-lg max-w-2xl mx-auto text-slate-600 dark:text-slate-400">Never wonder "what's for dinner" again. Our AI-powered platform creates personalized recipes based on your preferences, pantry items, and cooking skill level.</p>
+          <p className="text-lg max-w-2xl mx-auto text-slate-600 dark:text-slate-400">Never wonder &quot;what&apos;s for dinner&quot; again. Our AI-powered platform creates personalized recipes based on your preferences, pantry items, and cooking skill level.</p>
         </div>
 
         {/* Features Grid */}

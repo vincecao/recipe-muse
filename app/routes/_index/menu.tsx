@@ -1,76 +1,15 @@
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { Dish, Recipe } from "~/core/dish";
+import { Link } from "@remix-run/react";
 import { memo, PropsWithChildren } from "react";
-import { Link, useLoaderData } from "@remix-run/react";
 import { FaGripfire, FaUsers } from "react-icons/fa";
 import { GoClock } from "react-icons/go";
 import { TiStarFullOutline } from "react-icons/ti";
-import axios, { isAxiosError } from "axios";
-import { mockDishNames, mockRecipes } from "~/data/dish";
-
-export const meta: MetaFunction = () => {
-  return [{ title: "MealMuse - Daily Menu" }, { name: "description", content: "Today's curated selection of dishes, crafted with care and precision." }];
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
-  const MODEL = "claude-3-opus-20240229";
-  let recipes: Recipe[] = [];
-  const origin = new URL(request.url).origin;
-
-  try {
-    // Get dish names from API using Axios
-    // const dishNamesResponse = await axios.get<{dishNames: string[]}>(`${origin}/api/generate-dish-names?model=${MODEL}`);
-    // const { dishNames } = dishNamesResponse.data;
-    const dishNames = [mockDishNames[0]];
-
-    // Get recipes for each dish name using Axios
-    // const recipePromises = dishNames.map((name: string) => axios.get(`${origin}/api/get-recipe?dishName=${encodeURIComponent(name)}&model=${MODEL}`));
-
-    // const recipeResponses = await Promise.all(recipePromises);
-    recipes = mockRecipes; // recipeResponses.map((response) => response.data.recipe);
-  } catch (error) {
-    console.error("Loader error:", error);
-    if (isAxiosError(error)) {
-      throw new Response(error.response?.data?.error || "Failed to load recipes", {
-        status: error.response?.status || 500,
-      });
-    }
-    throw new Response("Failed to load recipes", { status: 500 });
-  }
-
-  const recipesByCategory = recipes.reduce((acc: Record<Recipe["category"], Recipe[]>, recipe) => {
-    (acc[recipe.category] ||= []).push(recipe);
-    return acc;
-  }, {} as Record<Recipe["category"], Recipe[]>);
-
-  return Response.json({ recipesByCategory });
-};
-
-export default function Index() {
-  const { recipesByCategory } = useLoaderData<{ recipesByCategory: Record<Recipe["category"], Recipe[]> }>();
-
-  return (
-    <MenuLayout>
-      <MenuHeader />
-      <MenuContent>
-        {Object.entries(recipesByCategory).map(([category, recipes]) => (
-          <MenuSection key={category} category={category as Recipe["category"]}>
-            {recipes.map((recipe) => (
-              <DishCard key={recipe.id} recipe={recipe} />
-            ))}
-          </MenuSection>
-        ))}
-        <MenuFooter />
-      </MenuContent>
-    </MenuLayout>
-  );
-}
+import { Dish, Recipe } from "~/core/type";
 
 export const MenuLayout = memo(function Layout({ children }: PropsWithChildren<unknown>) {
   return <div className="w-full max-w-6xl mx-auto shadow-none sm:shadow-lg relative sm:rounded-xl bg-white dark:bg-slate-800">{children}</div>;
 });
 
-const MenuHeader = memo(function MenuHeader() {
+export const MenuHeader = memo(function MenuHeader() {
   return (
     <div className="text-center pt-16 border-slate-200 dark:border-slate-700">
       <div className="flex flex-col items-center">
@@ -98,11 +37,11 @@ const MenuHeader = memo(function MenuHeader() {
   );
 });
 
-const MenuContent = memo(function MenuContent({ children }: PropsWithChildren<unknown>) {
+export const MenuContent = memo(function MenuContent({ children }: PropsWithChildren<unknown>) {
   return <div className="p-8 md:p-16 space-y-12">{children}</div>;
 });
 
-const MenuSection = memo(function MenuSection({ category, children }: PropsWithChildren<{ category: Dish["category"] }>) {
+export const MenuSection = memo(function MenuSection({ category, children }: PropsWithChildren<{ category: Dish["category"] }>) {
   return (
     <section className="space-y-6">
       <div className="flex items-center gap-4">
@@ -115,7 +54,7 @@ const MenuSection = memo(function MenuSection({ category, children }: PropsWithC
   );
 });
 
-const DishCard = memo(function DishCard({ recipe }: { recipe: Recipe }) {
+export const DishCard = memo(function DishCard({ recipe }: { recipe: Recipe }) {
   return (
     <article key={recipe.title} className="group relative overflow-hidden">
       {/* Background Container */}
@@ -136,7 +75,7 @@ const DishCard = memo(function DishCard({ recipe }: { recipe: Recipe }) {
       </div>
 
       {/* Content */}
-      <Link to={`/dishes/${recipe.id}`}>
+      <Link to={`/recipe`} state={{ recipe }}>
         <div className="relative z-10 p-6">
           <div className="flex justify-between items-start gap-4">
             <div className="flex-1 border-slate-300 dark:border-slate-600">
@@ -197,12 +136,12 @@ const DishCard = memo(function DishCard({ recipe }: { recipe: Recipe }) {
   );
 });
 
-const MenuFooter = memo(function MenuFooter() {
+export const MenuFooter = memo(function MenuFooter() {
   return (
     <div className="mt-16z pt-8 border-t border-slate-200 dark:border-slate-700">
       <div className="max-w-2xl mx-auto text-center">
         <h3 className="font-serif text-2xl mb-4 font-medium text-slate-800 dark:text-slate-200">CHEF&apos;S NOTE</h3>
-        <p className="text-sm leading-relaxed font-light text-slate-600 dark:text-slate-400">Our menu changes daily based on seasonal ingredients and chef's inspiration. Each dish is crafted with care, considering dietary preferences and cooking expertise. Enjoy your culinary journey!</p>
+        <p className="text-sm leading-relaxed font-light text-slate-600 dark:text-slate-400">Our menu changes daily based on seasonal ingredients and chef&apos;s inspiration. Each dish is crafted with care, considering dietary preferences and cooking expertise. Enjoy your culinary journey!</p>
       </div>
     </div>
   );

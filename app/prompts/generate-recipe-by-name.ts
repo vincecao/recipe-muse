@@ -1,5 +1,6 @@
 export default function generateRecipeByName(name: string) {
-  return `
+  return [
+    `
 Create a detailed recipe adhering strictly to the following TypeScript interface structure. Output ONLY a stringified JSON object with:
 
 \`\`\`ts
@@ -119,5 +120,7 @@ Input: "Truffle Burrata"
 Output: "{\\"id\\":\\"app-1-full\\",\\"category\\":\\"Appetizers\\",...}"
 
 Now create for: "${name}"
-`;
+`,
+    "02-04-2025",
+  ];
 }
