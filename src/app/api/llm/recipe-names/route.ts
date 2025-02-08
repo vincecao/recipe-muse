@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Cuisine } from '~/core/type';
-import generate from '~/prompts/generate-home-recipe-names';
-import { LLMClient, type LLMRequest } from '~/services/llm-client';
+import { LLMClient, type LLMRequest } from '~/app/api/_services/llm-client';
+import generate from '../_prompts/generate-home-recipe-names';
 
 export async function GET(request: Request) {
   try {

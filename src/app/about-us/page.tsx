@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MenuLayout } from "../menu/components/menu";
+import { MenuLayout } from "../menu/_components/menu";
 import { GiCookingPot, GiMeal, GiSpoon } from "react-icons/gi";
 import { MdOutlineTimer, MdRestaurantMenu } from "react-icons/md";
 

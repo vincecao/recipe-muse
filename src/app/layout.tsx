@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
-import InnerApp from '~/components/client-helpers/inner-app';
-import ThemeProvider from '~/components/client-helpers/theme-provider';
+import InnerApp from '~/app/_components/client-helpers/inner-app';
+import ThemeProvider from '~/app/_components/client-helpers/theme-provider';
 import './globals.css';
 
 const inter = Inter({

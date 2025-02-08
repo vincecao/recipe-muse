@@ -6,6 +6,7 @@ import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
 import { DbRecipe, Dish } from '~/core/type';
 import { useLanguage } from '~/core/use-language';
+import Image from 'next/image';
 
 export const MenuLayout = memo(function Layout({ children }: PropsWithChildren<unknown>) {
   return (
@@ -61,8 +62,14 @@ export const DishLayout = memo(function DishCard({ children, bgImgSrc }: PropsWi
       <div className="absolute inset-0 z-0 flex">
         <div className="w-[60%] bg-white dark:bg-slate-800" />
         <div className="relative w-[40%] overflow-hidden">
-          <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgImgSrc})` }} />
+          <div className="relative h-full w-full">
+            <Image
+              src={bgImgSrc}
+              alt="Menu background"
+              fill
+              priority
+              className="absolute inset-0 object-cover object-center"
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-white via-white/65 to-transparent dark:from-slate-800 dark:to-transparent" />
           </div>
         </div>

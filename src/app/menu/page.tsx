@@ -1,8 +1,7 @@
 import { DbRecipe, Recipe } from '~/core/type';
-import { MenuLayout, MenuHeader, MenuContent, MenuFooter, DishItem, DishLayout, MenuSection } from './components/menu';
-import { firebaseDb } from '~/services/firebase';
+import { MenuLayout, MenuHeader, MenuContent, MenuFooter, DishItem, DishLayout, MenuSection } from './_components/menu';
 import Link from 'next/link';
-import { cache } from 'react';
+import { CACHE_EXPIRATION } from '~/core/cache';
 
 const recipesByCategory = (recipes: DbRecipe[]) =>
   recipes.reduce((acc: Record<Recipe['category'], DbRecipe[]>, recipe: DbRecipe) => {
@@ -14,10 +13,11 @@ const recipesByCategory = (recipes: DbRecipe[]) =>
     return acc;
   }, {} as Record<Recipe['category'], DbRecipe[]>);
 
-const fetchAllRecipes = cache(() => firebaseDb.getAllRecipes());
-
 export default async function MenuPage() {
-  const recipes = await fetchAllRecipes();
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipe`, {
+    next: { tags: ['menu'], revalidate: CACHE_EXPIRATION },
+  });
+  const recipes = (await response.json()) as DbRecipe[];
   const mapping = Object.entries(recipesByCategory(recipes));
 
   return (

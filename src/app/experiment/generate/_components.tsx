@@ -1,7 +1,7 @@
 'use client'
 
-import { DishItem, DishLayout, MenuContent } from '~/app/menu/components/menu';
-import { RecipeDetail } from '~/app/menu/recipe/[id]/components/detail';
+import { DishItem, DishLayout, MenuContent } from '~/app/menu/_components/menu';
+import { RecipeDetail } from '~/app/menu/recipe/[id]/_components/detail';
 import { DbRecipe } from '~/core/type';
 import { useLanguage } from '~/core/use-language';
 import { useState } from 'react';

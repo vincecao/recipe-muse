@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
@@ -7,12 +7,20 @@ import cn from 'classnames';
 import { memo, PropsWithChildren } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
 import { useLanguage } from '~/core/use-language';
+import Image from 'next/image';
 
 export const DishHero = memo(function DishHero({ heroImgSrc, children }: PropsWithChildren<{ heroImgSrc: string }>) {
   return (
     <div className="relative h-[65vh] sm:h-[90vh] w-full">
-      {/* Background Image */}
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${heroImgSrc})` }} />
+      <div className="relative h-full w-full">
+        <Image
+          src={heroImgSrc}
+          alt="Dish hero image"
+          fill
+          priority
+          className="absolute inset-0 object-cover object-center"
+        />
+      </div>
 
       {/* Enhanced Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-50/20 via-slate-50/50 to-slate-50 dark:from-slate-900/20 dark:via-slate-900/40 dark:to-slate-900" />
