@@ -1,7 +1,6 @@
-import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation, useLoaderData } from '@remix-run/react';
-import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node';
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation } from '@remix-run/react';
+import type { LinksFunction } from '@remix-run/node';
 import { MantineProvider, ColorSchemeScript } from '@mantine/core';
-import { getSession } from './services/session.server';
 
 import './tailwind.css';
 import ThemeButton from './component/ThemeButton';
@@ -23,19 +22,6 @@ export const links: LinksFunction = () => [
     href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap',
   },
 ];
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const { origin } = new URL(request.url);
-  const response = await fetch(`${origin}/api/language`, {
-    headers: {
-      Cookie: request.headers.get('Cookie') || '',
-    },
-  });
-  const data = await response.json();
-  return Response.json({
-    language: data.language || 'en',
-  });
-}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { language } = useLanguage();

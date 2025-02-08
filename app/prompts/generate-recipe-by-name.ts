@@ -83,7 +83,6 @@ interface Recipe {
     ingredientsUsed?: string[];
     toolsNeeded?: string[];
     tips?: string;
-    images?: string[];
     temperature?: {
       value: number;
       unit: "C" | "F"
@@ -98,23 +97,13 @@ interface Recipe {
 
 Generate a recipe for: "${name}"
 
-Important modifications:
-1. DO NOT generate any image URLs - we'll add them separately
-2. Include detailed visual descriptions for potential images using "imageDescriptions" array instead of "images"
-3. Add 3-5 image description strings that could be used to find relevant photos
-
 Example response:
 {
   "category": "Appetizers",
-  "title": "Truffle Burrata",
-  "imageDescriptions": [
-    "Creamy burrata cheese drizzled with truffle oil on a wooden board",
-    "Close-up of burrata cheese being cut open with oozing center",
-    "Burrata served with heirloom tomatoes and fresh basil"
-  ],
+  "title": "Truffle Burrata",,
   // ... rest of fields ...
 }`,
     undefined,
-    "02-05-2025",
+    '02-07-2025',
   ];
 }

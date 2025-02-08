@@ -2,14 +2,14 @@ import { Navigate, useLocation } from '@remix-run/react';
 import { DishHero, DishHeroDetail } from './hero-related';
 import { RecipeDetail } from './recipe-related';
 import { MenuLayout } from '../home.menu/menu';
-import { DbRecipe, Recipe } from '~/core/type';
+import { DbRecipe } from '~/core/type';
 
 export default function DishDetailPage() {
   const location = useLocation();
   if (!location.state?.recipe) return <Navigate to="/" replace />;
   const {
     state: { recipe, images },
-  }: { state: { recipe: Recipe; images: DbRecipe['images'] } } = location;
+  }: { state: { recipe: DbRecipe; images: DbRecipe['images'] } } = location;
 
   return (
     <MenuLayout>

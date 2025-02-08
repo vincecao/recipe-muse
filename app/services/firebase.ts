@@ -83,9 +83,9 @@ class FirebaseService {
     }
   }
 
-  async deleteRecipe(id: string): Promise<void> {
+  async deleteRecipeById(recipeId: string): Promise<void> {
     try {
-      const recipeRef = ref(this.db, `recipes/${id}`);
+      const recipeRef = ref(this.db, `recipes/${recipeId}`);
       await remove(recipeRef);
     } catch (error) {
       console.error('Error deleting recipe:', error);

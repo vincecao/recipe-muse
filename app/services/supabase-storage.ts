@@ -26,7 +26,11 @@ export class SupabaseStorageService {
     const bucket = 'recipe-muse';
     // @todo remove below when ready
     filePath = filePath.replace('https://knosijoagudkextilhuz.supabase.co/storage/v1/object/public/recipe-muse', '');
-    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(`/${filePath}`, expiresIn);
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(`/${filePath}`, expiresIn, {
+      transform: {
+        width: 800,
+      },
+    });
 
     if (error) {
       console.error(`Supabase signed URL failed: ${error.message}`, filePath);

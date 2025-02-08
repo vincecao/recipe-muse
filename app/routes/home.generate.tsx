@@ -6,7 +6,7 @@ import { useLoaderData } from '@remix-run/react';
 import { useLanguage } from '~/core/useLanguage';
 import { DeepseekModel, LLMRequest } from '~/services/llm-client';
 import { useState } from 'react';
-import { RecipeDetail } from './recipe/recipe-related';
+import { RecipeDetail } from './home.recipe/recipe-related';
 
 export const loader: LoaderFunction = async ({ request }) => {
   let generated: DbRecipe[] = [];

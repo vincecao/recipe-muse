@@ -10,8 +10,9 @@ import {
   FiShoppingBag,
   FiUsers,
 } from 'react-icons/fi';
-import { DbRecipe, Recipe, RecipeIngredient, RecipeInstruction } from '~/core/type';
+import { DbRecipe, RecipeIngredient, RecipeInstruction } from '~/core/type';
 import cn from 'classnames';
+import { useLanguage } from '~/core/useLanguage';
 
 const NutritionFacts = memo(function NutritionFacts({
   calories,
@@ -167,9 +168,11 @@ export const RecipeDetail = memo(function DishDetail({
   recipe,
   images,
 }: {
-  recipe: Recipe;
+  recipe: DbRecipe;
   images: DbRecipe['images'];
 }) {
+  const { language } = useLanguage();
+  const rl = recipe[language];
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 space-y-16">
       {/* Header Section */}
@@ -177,19 +180,19 @@ export const RecipeDetail = memo(function DishDetail({
         {/* Category and Type */}
         <div className="flex flex-wrap justify-center gap-2">
           <span className="px-3 py-1 sm:px-4 sm:py-2 rounded-full text-sm font-medium backdrop-blur-md bg-amber-100/80 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-            {recipe.category}
+            {rl.category}
           </span>
           <span className="px-3 py-1 sm:px-4 sm:py-2 rounded-full text-sm font-medium backdrop-blur-md bg-white/80 text-slate-700 dark:bg-slate-800/80 dark:text-slate-300">
-            {recipe.cuisine.join(', ')}
+            {rl.cuisine.join(', ')}
           </span>
         </div>
 
-        <h1 className="text-5xl font-serif mb-6 text-slate-900 dark:text-white">{recipe.title}</h1>
+        <h1 className="text-5xl font-serif mb-6 text-slate-900 dark:text-white">{rl.title}</h1>
 
         {/* Required Equipment */}
-        {recipe.tools && (
+        {rl.tools && (
           <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
-            {recipe.tools.map((tool, index) => (
+            {rl.tools.map((tool, index) => (
               <span
                 key={index}
                 className="px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 backdrop-blur-sm bg-white/60 text-slate-700 border border-black/5 dark:bg-slate-800/60 dark:text-slate-300 dark:border-white/5"
@@ -210,22 +213,22 @@ export const RecipeDetail = memo(function DishDetail({
               <span
                 className={`px-4 py-1.5 rounded-full text-sm font-medium
                 ${
-                  recipe.difficulty === 'Beginner'
+                  rl.difficulty === 'Beginner'
                     ? 'bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
                     : ''
                 }
                 ${
-                  recipe.difficulty === 'Intermediate'
+                  rl.difficulty === 'Intermediate'
                     ? 'bg-amber-100/80 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
                     : ''
                 }
                 ${
-                  recipe.difficulty === 'Advanced'
+                  rl.difficulty === 'Advanced'
                     ? 'bg-rose-100/80 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
                     : ''
                 }`}
               >
-                {recipe.difficulty} Level
+                {rl.difficulty} Level
               </span>
             </div>
 
@@ -233,10 +236,10 @@ export const RecipeDetail = memo(function DishDetail({
             <div className="text-center">
               <FiClock className="w-6 h-6 mx-auto mb-1 text-amber-600 dark:text-amber-400" />
               <p className="font-serif text-base text-slate-800 dark:text-slate-100">
-                {recipe.prepTime + recipe.cookTime}m Total
+                {rl.prepTime + rl.cookTime}m Total
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                ({recipe.prepTime}m prep + {recipe.cookTime}m cook)
+                ({rl.prepTime}m prep + {rl.cookTime}m cook)
               </p>
             </div>
 
@@ -244,14 +247,14 @@ export const RecipeDetail = memo(function DishDetail({
             <div className="text-center">
               <FiUsers className="w-6 h-6 mx-auto mb-1 text-amber-600 dark:text-amber-400" />
               <p className="font-serif text-base text-slate-800 dark:text-slate-100">
-                Serves {recipe.servingSize.replace('For ', '')}
+                Serves {rl.servingSize.replace('For ', '')}
               </p>
             </div>
           </div>
 
           {/* Description */}
           <p className="text-center font-serif text-xl italic text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
-            &quot;{recipe.description}&quot;
+            &quot;{rl.description}&quot;
           </p>
         </div>
       </header>
@@ -296,7 +299,7 @@ export const RecipeDetail = memo(function DishDetail({
                     >
                       <img
                         src={img}
-                        alt={`${recipe.title} preparation ${index + 1}`}
+                        alt={`${rl.title} preparation ${index + 1}`}
                         className={cn(
                           'object-cover w-full h-full',
                           'transition-transform duration-500 group-hover:scale-105',
@@ -338,7 +341,7 @@ export const RecipeDetail = memo(function DishDetail({
 
       {/* Stats Overview */}
       <div className="grid md:grid-cols-2 gap-8">
-        <NutritionFacts calories={recipe.calories} allergens={recipe.allergens} />
+        <NutritionFacts calories={rl.calories} allergens={rl.allergens} />
 
         <div className="p-8 backdrop-blur-md rounded-2xl bg-white/20 border border-black/5 dark:bg-slate-800/70 dark:border-white/10">
           <h3 className="text-2xl font-serif mb-6 text-slate-900 dark:text-white">Ingredients Overview</h3>
@@ -347,7 +350,7 @@ export const RecipeDetail = memo(function DishDetail({
               <FiPackage className="w-8 h-8 text-amber-700 dark:text-amber-300" />
             </div>
             <div>
-              <span className="text-4xl font-light text-slate-900 dark:text-white">{recipe.ingredientsCount}</span>
+              <span className="text-4xl font-light text-slate-900 dark:text-white">{rl.ingredientsCount}</span>
               <span className="text-sm ml-2 text-slate-500 dark:text-slate-400">ingredients needed</span>
             </div>
           </div>
@@ -364,7 +367,7 @@ export const RecipeDetail = memo(function DishDetail({
             </span>
             Ingredients List
           </h2>
-          <IngredientsList ingredients={recipe.ingredients} />
+          <IngredientsList ingredients={rl.ingredients} />
         </section>
 
         <section className="space-y-8">
@@ -374,10 +377,10 @@ export const RecipeDetail = memo(function DishDetail({
             </span>
             Step-by-Step Instructions
           </h2>
-          <InstructionsStepper instructions={recipe.instructions} />
+          <InstructionsStepper instructions={rl.instructions} />
         </section>
 
-        {recipe.videoUrl && (
+        {rl.videoUrl && (
           <section className="space-y-8">
             <h2 className="text-3xl font-serif flex items-center gap-4 text-slate-900 dark:text-white">
               <span className="w-8 h-8 text-amber-600 dark:text-amber-400">
@@ -387,10 +390,10 @@ export const RecipeDetail = memo(function DishDetail({
             </h2>
             <div className="aspect-video rounded-2xl overflow-hidden bg-white/80 border border-black/5 dark:bg-slate-800/80 dark:border-white/5">
               <iframe
-                src={recipe.videoUrl}
+                src={rl.videoUrl}
                 className="w-full h-full"
                 allowFullScreen
-                title={`How to make ${recipe.title}`}
+                title={`How to make ${rl.title}`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               />
             </div>

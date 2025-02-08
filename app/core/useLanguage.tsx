@@ -1,14 +1,11 @@
-import { useFetcher, useRouteLoaderData } from "@remix-run/react";
-import { Lang } from "./type";
+import { useLocalStorage } from '@mantine/hooks';
+import { Lang } from './type';
 
 export function useLanguage() {
-  const data = useRouteLoaderData<{ language: Lang }>("root");
-  const language = data?.language || "en";
-
-  const fetcher = useFetcher();
-  const setLanguage = (newLanguage: string) => {
-    fetcher.submit({ language: newLanguage }, { method: "post", action: "/api/language" });
-  };
+  const [language, setLanguage] = useLocalStorage<Lang>({
+    key: 'language',
+    defaultValue: 'en',
+  });
 
   return { language, setLanguage };
 }

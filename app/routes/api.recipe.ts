@@ -39,7 +39,7 @@ const generateRecipeByName = async (name: string, model: LLMRequest['model']) =>
   const generateImages = async (title: string, description: string) => {
     const imageFiles = await getRecipeImages([title, description], IMAGE_COUNT);
     return Promise.all(
-      imageFiles.map((image) => (image ? storageService.upload(normalizeRecipeName(title), image, 'image/png') : {})),
+      imageFiles.map((image) => storageService.upload(normalizeRecipeName(title), image, 'image/png')),
     );
   };
 

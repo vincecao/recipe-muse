@@ -1,9 +1,8 @@
-import { Link } from '@remix-run/react';
 import { memo, PropsWithChildren } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
 import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
-import { DbRecipe, Dish, Recipe } from '~/core/type';
+import { DbRecipe, Dish } from '~/core/type';
 import { useLanguage } from '~/core/useLanguage';
 
 export const MenuLayout = memo(function Layout({ children }: PropsWithChildren<unknown>) {
@@ -33,7 +32,7 @@ export const MenuHeader = memo(function MenuHeader() {
 });
 
 export const MenuContent = memo(function MenuContent({ children }: PropsWithChildren<unknown>) {
-  return <div className="p-8 md:p-16 space-y-12">{children}</div>;
+  return <div className="p-0 md:p-16 space-y-12">{children}</div>;
 });
 
 export const MenuSection = memo(function MenuSection({
@@ -49,18 +48,8 @@ export const MenuSection = memo(function MenuSection({
         </h2>
         <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
       </div>
-      <div className="space-y-6">{children}</div>
+      <div className="space-y-1 md:space-y-6">{children}</div>
     </section>
-  );
-});
-
-export const MenuDish = memo(function DishCard({ recipe, images }: { recipe: Recipe; images: DbRecipe['images'] }) {
-  return (
-    <DishLayout bgImgSrc={images[0]}>
-      <Link to={`/recipe`} state={{ recipe, images }} preventScrollReset>
-        <DishItem recipe={recipe}></DishItem>
-      </Link>
-    </DishLayout>
   );
 });
 
@@ -81,21 +70,21 @@ export const DishLayout = memo(function DishCard({ children, bgImgSrc }: PropsWi
   );
 });
 
-export const DishItem = memo(function DishCard({ recipe }: { recipe: Recipe }) {
+export const DishItem = memo(function DishCard({ recipe }: { recipe: DbRecipe }) {
+  const { language } = useLanguage();
+  const rl = recipe[language];
   return (
     <div className="relative z-10 p-6">
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1 border-slate-300 dark:border-slate-600">
           <div className="flex justify-between mb-2">
             <h3 className="font-serif text-xl font-medium text-slate-700 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white">
-              {recipe.title}
+              {rl.title}
             </h3>
           </div>
-          <p className="text-sm mb-3 font-light leading-relaxed text-slate-600 dark:text-slate-400">
-            {recipe.description}
-          </p>
+          <p className="text-sm mb-3 font-light leading-relaxed text-slate-600 dark:text-slate-400">{rl.description}</p>
           <div className="flex flex-wrap gap-2 mb-3">
-            {recipe.tags.map((tag) => (
+            {rl.tags.map((tag) => (
               <span
                 key={tag}
                 className="text-xs px-2 py-0.5 rounded-full backdrop-blur-sm bg-slate-100/80 text-slate-600 dark:bg-slate-700/80 dark:text-slate-300"
@@ -103,7 +92,7 @@ export const DishItem = memo(function DishCard({ recipe }: { recipe: Recipe }) {
                 {tag}
               </span>
             ))}
-            {recipe.allergens?.map((allergen) => (
+            {rl.allergens?.map((allergen) => (
               <span
                 key={allergen}
                 className="text-xs px-2 py-0.5 rounded-full backdrop-blur-sm bg-rose-50/80 text-rose-600 dark:bg-rose-900/30 dark:text-rose-300"
@@ -117,22 +106,22 @@ export const DishItem = memo(function DishCard({ recipe }: { recipe: Recipe }) {
               className={`
                   px-2 py-0.5 rounded text-xs backdrop-blur-sm
                   ${
-                    recipe.difficulty === 'Beginner'
+                    rl.difficulty === 'Beginner'
                       ? 'bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400'
-                      : recipe.difficulty === 'Intermediate'
+                      : rl.difficulty === 'Intermediate'
                       ? 'bg-amber-100/80 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400'
                       : 'bg-rose-100/80 text-rose-700 dark:bg-rose-900/50 dark:text-rose-400'
                   }
                 `}
             >
-              {recipe.difficulty}
+              {rl.difficulty}
             </span>
             <div className="flex gap-4">
               {[
-                { icon: <GoClock className="w-4 h-4" />, value: recipe.time },
-                { icon: <FaGripfire className="w-4 h-4" />, value: `${recipe.calories} kcal` },
-                { icon: <TiStarFullOutline className="w-4 h-4" />, value: `${recipe.ingredientsCount} items` },
-                { icon: <FaUsers className="w-4 h-4" />, value: recipe.servingSize },
+                { icon: <GoClock className="w-4 h-4" />, value: rl.time },
+                { icon: <FaGripfire className="w-4 h-4" />, value: `${rl.calories} kcal` },
+                { icon: <TiStarFullOutline className="w-4 h-4" />, value: `${rl.ingredientsCount} items` },
+                { icon: <FaUsers className="w-4 h-4" />, value: rl.servingSize },
               ].map(({ icon, value }, index) => (
                 <span
                   key={index}

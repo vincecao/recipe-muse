@@ -1,32 +1,31 @@
-import { useOutletContext } from '@remix-run/react';
-import { DbRecipe, Lang, Recipe } from '~/core/type';
-import { MenuLayout, MenuHeader, MenuContent, MenuSection, MenuDish, MenuFooter } from './menu';
-import { HomeContext } from '../home/route';
+import { Link, useLoaderData } from '@remix-run/react';
+import { DbRecipe, Recipe } from '~/core/type';
+import { MenuLayout, MenuHeader, MenuContent, MenuSection, MenuFooter, DishItem, DishLayout } from './menu';
 import { useMemo } from 'react';
-import { useLanguage } from '~/core/useLanguage';
+import { LoaderFunction } from '@remix-run/node';
+import { firebaseDb } from '~/services/firebase';
 
-const recipesByCategory = (recipes: DbRecipe[], lang: Lang) =>
-  recipes.reduce((acc: Record<Recipe['category'], Recipe[]>, recipe: DbRecipe) => {
-    const category = recipe[lang].category;
+const recipesByCategory = (recipes: DbRecipe[]) =>
+  recipes.reduce((acc: Record<Recipe['category'], DbRecipe[]>, recipe: DbRecipe) => {
+    const category = recipe.en.category;
     if (!acc[category]) {
       acc[category] = [];
     }
-    acc[category].push(recipe[lang]);
+    acc[category].push(recipe);
     return acc;
-  }, {} as Record<Recipe['category'], Recipe[]>);
+  }, {} as Record<Recipe['category'], DbRecipe[]>);
+
+export const loader: LoaderFunction = async () => {
+  const recipes = await firebaseDb.getAllRecipes();
+  return Response.json({ recipes });
+};
 
 export default function HomeMenuRoute() {
-  const { language } = useLanguage();
-  const { recipes } = useOutletContext<HomeContext>();
-
-  const imageMap = useMemo(
-    () => new Map<string, string[]>(recipes.map((r) => [r[language].id, r.images])),
-    [language, recipes],
-  );
+  const { recipes } = useLoaderData<{ recipes: DbRecipe[] }>();
 
   const mapping = useMemo(() => {
-    return Object.entries(recipesByCategory(recipes, language));
-  }, [recipes, language]);
+    return Object.entries(recipesByCategory(recipes));
+  }, [recipes]);
 
   return (
     <MenuLayout>
@@ -34,9 +33,23 @@ export default function HomeMenuRoute() {
       <MenuContent>
         {mapping.map(([category, recipes]) => (
           <MenuSection key={category} category={category as Recipe['category']}>
-            {recipes.map((recipe) => (
-              <MenuDish key={recipe.id} recipe={recipe} images={imageMap.get(recipe.id)!} />
-            ))}
+            {recipes.map((recipe) => {
+              const { images } = recipe;
+              return (
+                <DishLayout key={recipe.id} bgImgSrc={images[0]}>
+                  <Link
+                    to="/home/recipe"
+                    state={{
+                      recipe: recipe,
+                      images: images,
+                    }}
+                    preventScrollReset
+                  >
+                    <DishItem recipe={recipe} />
+                  </Link>
+                </DishLayout>
+              );
+            })}
           </MenuSection>
         ))}
         <MenuFooter />
