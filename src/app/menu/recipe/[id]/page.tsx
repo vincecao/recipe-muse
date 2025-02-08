@@ -8,7 +8,7 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export const fetchRecipeById = cache((id: string) => firebaseDb.getRecipe(id));
+const fetchRecipeById = cache((id: string) => firebaseDb.getRecipe(id));
 
 export default async function RecipePage({ params }: PageProps) {
   const { id } = await params;

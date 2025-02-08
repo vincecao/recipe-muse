@@ -1,11 +1,12 @@
+'use client'
+
 import { DishItem, DishLayout, MenuContent } from '~/app/menu/components/menu';
 import { RecipeDetail } from '~/app/menu/recipe/[id]/components/detail';
 import { DbRecipe } from '~/core/type';
 import { useLanguage } from '~/core/use-language';
+import { useState } from 'react';
 
 export default function View({ recipes }: { recipes: DbRecipe[] }) {
-  'use client';
-
   const { language } = useLanguage();
   const [selectedIndex, setSelectedIndex] = useState(0);
 

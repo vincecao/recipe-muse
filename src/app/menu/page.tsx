@@ -14,7 +14,7 @@ const recipesByCategory = (recipes: DbRecipe[]) =>
     return acc;
   }, {} as Record<Recipe['category'], DbRecipe[]>);
 
-export const fetchAllRecipes = cache(() => firebaseDb.getAllRecipes());
+const fetchAllRecipes = cache(() => firebaseDb.getAllRecipes());
 
 export default async function MenuPage() {
   const recipes = await fetchAllRecipes();

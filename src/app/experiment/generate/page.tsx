@@ -1,13 +1,12 @@
-import { Cuisine, DbRecipe } from '~/core/type';
+/*
+import { DbRecipe } from '~/core/type';
 import { cache } from 'react';
-import axios, { isAxiosError } from 'axios';
-import { LLMRequest, DeepseekModel } from '~/services/llm-client';
 import View from './components';
 
-const generateRecipes = cache(async () => {
-  let generated: DbRecipe[] = [];
 
-  /*
+const generateRecipes = cache(async () => {
+  const generated: DbRecipe[] = [];
+  
   try {
     const MODEL: LLMRequest['model'] = DeepseekModel.CHAT;
     const origin = process.env.NEXTAUTH_URL || 'http://localhost:3000';
@@ -41,11 +40,13 @@ const generateRecipes = cache(async () => {
     }
     throw new Response('Failed to load recipes', { status: 500 });
   }
-  */
+  
   return generated;
 });
+*/
 
 export default async function ExperimentGeneratePage() {
-  const generated = await generateRecipes();
-  return <View recipes={generated} />;
+  // const generated = await generateRecipes();
+  // return <View recipes={generated} />;
+  return null;
 }

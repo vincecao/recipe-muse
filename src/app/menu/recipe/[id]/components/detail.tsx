@@ -155,7 +155,13 @@ const InstructionsStepper = memo(function InstructionsStepper({ instructions }: 
                       key={idx}
                       className="relative w-24 h-24 flex-shrink-0 rounded overflow-hidden border border-black/5 dark:border-white/5"
                     >
-                      <img src={img} alt={`Step ${instruction.order}`} className="w-full h-full object-cover" />
+                      <Image
+                        width={800}
+                        height={600}
+                        src={img}
+                        alt={`Step ${instruction.order}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   ))}
                 </div>

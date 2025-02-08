@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 
 export type Theme = 'light' | 'dark';

@@ -27,7 +27,7 @@ export async function GET(request: Request) {
   }
 }
 
-export const generateHomeRecipeNames = async (cuisines: Cuisine[], length: number, model: LLMRequest['model']) => {
+const generateHomeRecipeNames = async (cuisines: Cuisine[], length: number, model: LLMRequest['model']) => {
   const llmClient = new LLMClient();
   console.log('home recipe names started', cuisines, length, model);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
