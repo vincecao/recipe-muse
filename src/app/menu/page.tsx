@@ -13,11 +13,28 @@ const recipesByCategory = (recipes: DbRecipe[]) =>
     return acc;
   }, {} as Record<Recipe['category'], DbRecipe[]>);
 
+async function fetchRecipes() {
+  let recipes: DbRecipe[] = [];
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipe`, {
+      next: { tags: ['menu'], revalidate: CACHE_EXPIRATION },
+    });
+
+    if (!res.ok) throw new Error('Failed to fetch recipes');
+    const data = await res.json();
+
+    // Add runtime validation
+    if (!Array.isArray(data)) throw new Error('Invalid recipe data format');
+
+    recipes = data;
+  } catch (error) {
+    console.error(error);
+  }
+  return recipes;
+}
+
 export default async function MenuPage() {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipe`, {
-    next: { tags: ['menu'], revalidate: CACHE_EXPIRATION },
-  });
-  const recipes = (await response.json()) as DbRecipe[];
+  const recipes = await fetchRecipes();
   const mapping = Object.entries(recipesByCategory(recipes));
 
   return (
