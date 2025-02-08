@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import { GiCookingPot, GiMeal, GiSpoon } from "react-icons/gi";
 import { MdOutlineTimer, MdRestaurantMenu } from "react-icons/md";
-import { MenuLayout } from "./_index/menu";
+import { MenuLayout } from "./home.menu/menu";
 
 export default function AboutUsPage() {
   return (

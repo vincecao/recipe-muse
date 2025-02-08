@@ -1,7 +1,52 @@
-import { LLMRequest } from "~/services/llm-client";
-
 export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 export type Category = "Appetizers" | "Main Course" | "Desserts" | "Beverages" | "Cocktails";
+export type Cuisine =
+  | "Italian"
+  | "French"
+  | "Spanish"
+  | "Greek"
+  | "Mediterranean"
+  | "Mexican"
+  | "Brazilian"
+  | "Peruvian"
+  | "American"
+  | "Japanese"
+  | "Chinese"
+  | "Thai"
+  | "Indian"
+  | "Middle Eastern"
+  | "Lebanese"
+  | "Turkish"
+  | "Moroccan"
+  | "Ethiopian"
+  | "Korean"
+  | "Vietnamese"
+  | "Caribbean"
+  | "Cajun/Creole"
+  | "German"
+  | "British"
+  | "Irish"
+  | "Scandinavian"
+  | "Russian"
+  | "Hawaiian"
+  | "Filipino"
+  | "Malaysian"
+  | "Indonesian"
+  | "South African"
+  | "Soul Food"
+  | "Tex-Mex"
+  | "Israeli"
+  | "Polish"
+  | "Portuguese"
+  | "Argentinian"
+  | "Nordic"
+  | "Southern"
+  | "Pacific Islander"
+  | "Fusion"
+  | "Vegetarian"
+  | "Vegan"
+  | "Kosher"
+  | "BBQ";
 
 export interface Dish {
   id: string;
@@ -12,58 +57,10 @@ export interface Dish {
   ingredientsCount: number;
   time: string;
   calories: number;
-  images: string[];
   tags: string[];
   servingSize: string;
   allergens?: string[];
-  cuisine:
-    | "Italian"
-    | "French"
-    | "Spanish"
-    | "Greek"
-    | "Mediterranean"
-    | "Mexican"
-    | "Brazilian"
-    | "Peruvian"
-    | "American"
-    | "Japanese"
-    | "Chinese"
-    | "Thai"
-    | "Indian"
-    | "Middle Eastern"
-    | "Lebanese"
-    | "Turkish"
-    | "Moroccan"
-    | "Ethiopian"
-    | "Korean"
-    | "Vietnamese"
-    | "Caribbean"
-    | "Cajun/Creole"
-    | "German"
-    | "British"
-    | "Irish"
-    | "Scandinavian"
-    | "Russian"
-    | "Hawaiian"
-    | "Filipino"
-    | "Malaysian"
-    | "Indonesian"
-    | "South African"
-    | "Soul Food"
-    | "Tex-Mex"
-    | "Israeli"
-    | "Polish"
-    | "Portuguese"
-    | "Argentinian"
-    | "Vietnamese"
-    | "Nordic"
-    | "Southern"
-    | "Pacific Islander"
-    | "Fusion"
-    | "Vegetarian"
-    | "Vegan"
-    | "Kosher"
-    | "BBQ";
+  cuisine: Cuisine[];
 }
 
 export interface Recipe extends Dish {
@@ -100,8 +97,18 @@ export interface RecipeIngredient {
   state?: string; // state of the ingredient such as "raw", "processed", "dry", "cooked", "chopped", etc;
 }
 
-export type StoredRecipe = Recipe & {
-  version: string,
-  model: LLMRequest['model'],
-  createdAt?: Date,
+export interface BaseDbRecipe {
+  id: string;
+  version: {
+    recipe: string;
+    translator: string;
+  };
+  createdAt?: Date;
+  images: string[]; // Moved to root level
 }
+
+export type DbRecipe = BaseDbRecipe & {
+  [key in Lang]: Recipe; // Remove images from language-specific versions
+};
+
+export type Lang = "zh" | "en"; // 'es' | 'fr' | 'ja' | 'ko' | 'de' | 'it' | 'pt' | 'ru'

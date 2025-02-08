@@ -1,20 +1,34 @@
-export default function generateHomeRecipeNames() {
+import { Cuisine } from '~/core/type';
+
+export default function generateHomeRecipeNames(
+  cuisines: Cuisine[],
+  length: number = 1,
+): [string | undefined, string, string | undefined, string] {
   return [
-    `
-Create a list of "Appetizers, Main Course, Desserts, Beverages, Cocktails" names. Output ONLY a stringified JSON string array with:
+    undefined,
+    `You are a recipe name generator. Your task is to generate a list of recipe names organized by category.
 
-Make sure
-- each category has 3 items
-- try to create common and popular dish/item names across cuisines 
-- name (max 40 chars)
-- make sure all information is accurate and easy to understand
+The output MUST be a single line stringified JSON array that can be parsed by JSON.parse(). Do not include any markdown, code blocks, or explanations.
 
-Format response as a single line JSON string without markdown, and make sure string is JSON.parse valid. Example input/output:
+Requirements:
+- Generate total ${length} recipe name(s), from any of below categories: Appetizers, Main Course, Desserts, Beverages, Cocktails
+- Make sure recipe names return is belong to cuisines: ${cuisines.join(', ')}
+- Use common and popular dish/item names from various cuisines
+- Each name must be max 40 characters
+- Names must be accurate and easily recognizable
+- Each time you generate, provide different recipe names even for the same cuisine and category
+- Avoid repeating previously suggested recipes by exploring diverse dishes within each cuisine
+- Mix and match ingredients, cooking methods, and regional variations to create unique combinations
 
-Output: "[\\"Truffle Burrata\\", \\"Tuna Tartare\\", \\"Wagyu Ribeye\\", ...]"
+The output should be exactly ${length} items total.
 
-Now create
-`,
-    "02-04-2025",
+Example Output:
+["Crispy Spring Rolls"]
+or 
+["Crispy Spring Rolls", "Caprese Salad"]
+
+Remember: Output MUST be a single line JSON string that can be parsed by JSON.parse().`,
+    undefined,
+    '02-07-2025',
   ];
 }

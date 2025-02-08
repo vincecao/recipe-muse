@@ -1,4 +1,6 @@
+import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
+import type { ChatCompletionMessageParam } from "openai/resources/index";
 
 export type LLMResponse = {
   content: string;
@@ -9,38 +11,51 @@ export type LLMResponse = {
   };
 };
 
+export enum DeepseekModel {
+  CHAT = 'deepseek-chat',
+  REASONER = 'deepseek-reasoner',
+}
+
+export enum AnthropicModel {
+  SONNET = 'claude-3-5-sonnet-20241022',
+  OPUS = 'claude-3-opus-20240229',
+}
+
 export type LLMRequest = {
-  prompt: string;
-  model: "deepseek-v3" | "claude-3-5-sonnet-20241022" | "claude-3-opus-20240229";
+  messages: ChatCompletionMessageParam[];
+  model: DeepseekModel | AnthropicModel;
   temperature?: number;
   max_tokens?: number;
 };
 
 export class LLMClient {
-  private readonly deepseekApiKey: string;
+  private readonly openaiClient: OpenAI;
   private readonly anthropicClient: Anthropic;
 
   constructor() {
-    this.deepseekApiKey = process.env.DEEPSEEK_API_KEY ?? ""; // Store in .env
+    this.openaiClient = new OpenAI({
+      baseURL: 'https://openrouter.ai/api/v1', // "https://api.deepseek.com",
+      apiKey: process.env.OPEN_ROUTER_API_KEY, //process.env.DEEPSEEK_API_KEY ?? "",
+    });
+
     this.anthropicClient = new Anthropic();
   }
 
   async generate(payload: LLMRequest): Promise<LLMResponse> {
-    const { prompt, model, temperature = 0.0, max_tokens = 4096 } = payload;
+    const { messages, model, temperature = 0.0, max_tokens = 4096 } = payload;
 
-    // Automatically choose provider based on model
     const provider = this.getProviderForModel(model);
     if (provider === "deepseek") {
-      return this.callDeepSeek(prompt, model, temperature, max_tokens);
+      return this.callDeepSeek(messages, model, temperature, max_tokens);
     } else if (provider === "anthropic") {
-      return this.callAnthropic(prompt, model, temperature, max_tokens);
+      return this.callAnthropic(messages, model, temperature, max_tokens);
     } else {
       throw new Error("Invalid model specified");
     }
   }
 
   private getProviderForModel(model: string): "deepseek" | "anthropic" {
-    if (model === "deepseek-v3") {
+    if (model.startsWith("deepseek-")) {
       return "deepseek";
     } else if (model.startsWith("claude-")) {
       return "anthropic";
@@ -49,39 +64,51 @@ export class LLMClient {
     }
   }
 
-  private async callDeepSeek(prompt: string, model: string, temperature: number, max_tokens: number): Promise<LLMResponse> {
-    const response = await fetch("https://api.deepseek.com/v1/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.deepseekApiKey}`,
-      },
-      body: JSON.stringify({
-        prompt,
-        model,
-        temperature,
-        max_tokens,
-      }),
+  private async callDeepSeek(
+    messages: ChatCompletionMessageParam[],
+    model: LLMRequest['model'],
+    temperature: number,
+    max_tokens: number
+  ): Promise<LLMResponse> {
+    const completion = await this.openaiClient.chat.completions.create({
+      messages,
+      model: `deepseek/${model}`,
+      temperature,
+      max_tokens,
+      // response_format: {
+      //   type: 'text', // "json_object"
+      // },
     });
 
-    if (!response.ok) {
-      throw new Error(`DeepSeek API Error: ${response.statusText}`);
+    const [choice] = completion.choices;
+    if (!choice?.message?.content) {
+      throw new Error("No content in response");
     }
 
-    const data = await response.json();
+    console.log({ content: choice.message.content })
     return {
-      content: data.choices[0].message.content,
-      model: data.model,
-      usage: data.usage,
+      content: choice.message.content,
+      model: completion.model,
+      usage: completion.usage || {
+        prompt_tokens: 0,
+        completion_tokens: 0,
+        total_tokens: 0
+      },
     };
   }
 
-  private async callAnthropic(prompt: string, model: string, temperature: number, max_tokens: number): Promise<LLMResponse> {
+  private async callAnthropic(
+    messages: ChatCompletionMessageParam[],
+    model: LLMRequest['model'],
+    temperature: number,
+    max_tokens: number
+  ): Promise<LLMResponse> {
     const msg = await this.anthropicClient.messages.create({
       model,
       max_tokens,
       temperature,
-      messages: [{ role: "user", content: prompt }],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messages: messages as any,
     });
     if (!("text" in msg.content[0])) throw new Error(`Anthropic API Error: No text response`);
     return {

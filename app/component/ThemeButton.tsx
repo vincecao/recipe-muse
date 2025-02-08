@@ -1,12 +1,12 @@
 import { useMantineColorScheme } from "@mantine/core";
 import { memo, useEffect } from "react";
 import { FiSun, FiMoon } from "react-icons/fi";
+import NavButton from "./NavButton";
 
 function useIsDark() {
   const { colorScheme } = useMantineColorScheme();
   return colorScheme === "dark";
 }
-
 
 const ThemeButton = memo(function ThemeButtonComponent() {
   const { toggleColorScheme } = useMantineColorScheme();
@@ -24,23 +24,7 @@ const ThemeButton = memo(function ThemeButtonComponent() {
     }
   }, [isDark]);
 
-  return (
-    <button
-      onClick={() => toggleColorScheme()}
-      className="flex items-center gap-2 p-2
-        font-serif text-sm tracking-wider
-        border rounded-md
-        transition-all duration-300
-        text-slate-600 dark:text-amber-300
-        border-slate-200 dark:border-amber-300/30
-        hover:border-slate-400 dark:hover:border-amber-300/60
-        bg-gray-200/30 dark:bg-gray-700/30
-        backdrop-blur-sm"
-    >
-      <span className="sr-only">Toggle theme</span>
-      {isDark ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
-    </button>
-  );
+  return <NavButton onClick={toggleColorScheme} text="Toggle theme" icon={isDark ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />} active={isDark} iconClassName="w-4 h-4" />;
 });
 
 export default ThemeButton;
