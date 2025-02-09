@@ -12,10 +12,89 @@ import {
   FiShoppingBag,
   FiUsers,
 } from 'react-icons/fi';
-import { DbRecipe, RecipeIngredient, RecipeInstruction } from '~/core/type';
+import { DbRecipe, Lang, RecipeIngredient, RecipeInstruction } from '~/core/type';
 import cn from 'classnames';
 import { useLanguage } from '~/core/use-language';
 import Image from 'next/image';
+
+// Text mapping for multiple languages
+const textMap: {[key in Lang]: {
+  nutrition: string;
+  caloriesPerServing: string;
+  allergyInfo: string;
+  noneSpecified: string;
+  ingredientsOverview: string;
+  ingredientsNeeded: string;
+  substitutesAvailable: string;
+  ingredientsList: string;
+  stepByStep: string;
+  videoGuide: string;
+  totalTime: string;
+  prepCookTime: string;
+  serves: string;
+  difficultyLevel: string;
+  beginner: string;
+  intermediate: string;
+  advanced: string;
+}} = {
+  en: {
+    nutrition: 'Nutrition',
+    caloriesPerServing: 'calories per serving',
+    allergyInfo: '⚠️ Allergy Information',
+    noneSpecified: 'None specified',
+    ingredientsOverview: 'Ingredients Overview',
+    ingredientsNeeded: 'ingredients needed',
+    substitutesAvailable: 'Some ingredients have substitutes available',
+    ingredientsList: 'Ingredients List',
+    stepByStep: 'Step-by-Step Instructions',
+    videoGuide: 'Video Guide',
+    totalTime: 'm Total',
+    prepCookTime: 'm prep + m cook',
+    serves: 'Serves',
+    difficultyLevel: 'Level',
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced',
+  },
+  zh: {
+    nutrition: '营养信息',
+    caloriesPerServing: '每份卡路里',
+    allergyInfo: '⚠️ 过敏信息',
+    noneSpecified: '未指定',
+    ingredientsOverview: '食材概览',
+    ingredientsNeeded: '所需食材',
+    substitutesAvailable: '部分食材有替代品',
+    ingredientsList: '食材清单',
+    stepByStep: '分步说明',
+    videoGuide: '视频指南',
+    totalTime: '分钟 总计',
+    prepCookTime: '分钟准备 + 分钟烹饪',
+    serves: '份量',
+    difficultyLevel: '难度',
+    beginner: '初级',
+    intermediate: '中级',
+    advanced: '高级'
+  },
+  ja: {
+    nutrition: '栄養情報',
+    caloriesPerServing: '1人分のカロリー',
+    allergyInfo: '⚠️ アレルギー情報',
+    noneSpecified: '指定なし',
+    ingredientsOverview: '材料概要',
+    ingredientsNeeded: '必要な材料',
+    substitutesAvailable: '一部の材料には代替品があります',
+    ingredientsList: '材料リスト',
+    stepByStep: 'ステップバイステップの説明',
+    videoGuide: 'ビデオガイド',
+    totalTime: '分 合計',
+    prepCookTime: '分準備 + 分調理',
+    serves: '人数',
+    difficultyLevel: '難易度',
+    beginner: '初級',
+    intermediate: '中級',
+    advanced: '上級'
+  },
+};
 
 const NutritionFacts = memo(function NutritionFacts({
   calories,
@@ -24,15 +103,18 @@ const NutritionFacts = memo(function NutritionFacts({
   calories: number;
   allergens?: string[];
 }) {
+  const { language } = useLanguage();
+  const t = textMap[language] || textMap.en;
+
   return (
     <div className="p-8 backdrop-blur-md rounded-2xl bg-white/20 border border-black/5 dark:bg-slate-800/70 dark:border-white/10">
-      <h3 className="text-2xl font-serif mb-6 text-slate-900 dark:text-white">Nutrition</h3>
+      <h3 className="text-2xl font-serif mb-6 text-slate-900 dark:text-white">{t.nutrition}</h3>
       <div className="flex items-baseline gap-2 mb-4">
         <span className="text-4xl font-light text-amber-600 dark:text-amber-400">{calories}</span>
-        <span className="text-sm text-slate-500 dark:text-slate-400">calories per serving</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">{t.caloriesPerServing}</span>
       </div>
       <div className="space-y-4">
-        <h4 className="text-sm font-medium text-rose-600 dark:text-rose-300">⚠️ Allergy Information</h4>
+        <h4 className="text-sm font-medium text-rose-600 dark:text-rose-300">{t.allergyInfo}</h4>
         <div className="flex flex-wrap gap-2">
           {allergens?.length ? (
             allergens.map((allergen, index) => (
@@ -44,7 +126,7 @@ const NutritionFacts = memo(function NutritionFacts({
               </span>
             ))
           ) : (
-            <span className="text-sm text-slate-500 dark:text-slate-400">None specified</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">{t.noneSpecified}</span>
           )}
         </div>
       </div>
@@ -181,7 +263,9 @@ export const RecipeDetail = memo(function DishDetail({
   images: DbRecipe['images'];
 }) {
   const { language } = useLanguage();
-  const recipe = recipeRaw[language];
+  const t = textMap[language] || textMap.en;
+  const recipe = recipeRaw[language] ?? recipeRaw.en;
+  
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 space-y-16">
       {/* Header Section */}
@@ -237,7 +321,7 @@ export const RecipeDetail = memo(function DishDetail({
                     : ''
                 }`}
               >
-                {recipe.difficulty} Level
+                {t[recipe.difficulty.toLowerCase() as keyof typeof t]} {t.difficultyLevel}
               </span>
             </div>
 
@@ -245,10 +329,10 @@ export const RecipeDetail = memo(function DishDetail({
             <div className="text-center">
               <FiClock className="w-6 h-6 mx-auto mb-1 text-amber-600 dark:text-amber-400" />
               <p className="font-serif text-base text-slate-800 dark:text-slate-100">
-                {recipe.prepTime + recipe.cookTime}m Total
+                {recipe.prepTime + recipe.cookTime}{t.totalTime}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                ({recipe.prepTime}m prep + {recipe.cookTime}m cook)
+                ({recipe.prepTime}{t.prepCookTime})
               </p>
             </div>
 
@@ -256,7 +340,7 @@ export const RecipeDetail = memo(function DishDetail({
             <div className="text-center">
               <FiUsers className="w-6 h-6 mx-auto mb-1 text-amber-600 dark:text-amber-400" />
               <p className="font-serif text-base text-slate-800 dark:text-slate-100">
-                Serves {recipe.servingSize.replace('For ', '')}
+                {t.serves} {recipe.servingSize.replace('For ', '')}
               </p>
             </div>
           </div>
@@ -355,17 +439,17 @@ export const RecipeDetail = memo(function DishDetail({
         <NutritionFacts calories={recipe.calories} allergens={recipe.allergens} />
 
         <div className="p-8 backdrop-blur-md rounded-2xl bg-white/20 border border-black/5 dark:bg-slate-800/70 dark:border-white/10">
-          <h3 className="text-2xl font-serif mb-6 text-slate-900 dark:text-white">Ingredients Overview</h3>
+          <h3 className="text-2xl font-serif mb-6 text-slate-900 dark:text-white">{t.ingredientsOverview}</h3>
           <div className="flex items-center gap-4 mb-6">
             <div className="p-4 rounded-xl bg-amber-100/80 dark:bg-amber-900/30">
               <FiPackage className="w-8 h-8 text-amber-700 dark:text-amber-300" />
             </div>
             <div>
-              <span className="text-4xl font-light text-slate-900 dark:text-white">{recipe.ingredientsCount}</span>
-              <span className="text-sm ml-2 text-slate-500 dark:text-slate-400">ingredients needed</span>
+              <span className="text-4xl font-light text-slate-9 00 dark:text-white">{recipe.ingredientsCount}</span>
+              <span className="text-sm ml-2 text-slate-500 dark:text-slate-400">{t.ingredientsNeeded}</span>
             </div>
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Some ingredients have substitutes available</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t.substitutesAvailable}</p>
         </div>
       </div>
 
@@ -376,7 +460,7 @@ export const RecipeDetail = memo(function DishDetail({
             <span className="w-8 h-8 text-amber-600 dark:text-amber-400">
               <FiShoppingBag className="w-full h-full" />
             </span>
-            Ingredients List
+            {t.ingredientsList}
           </h2>
           <IngredientsList ingredients={recipe.ingredients} />
         </section>
@@ -386,7 +470,7 @@ export const RecipeDetail = memo(function DishDetail({
             <span className="w-8 h-8 text-amber-600 dark:text-amber-400">
               <FiList className="w-full h-full" />
             </span>
-            Step-by-Step Instructions
+            {t.stepByStep}
           </h2>
           <InstructionsStepper instructions={recipe.instructions} />
         </section>
@@ -397,7 +481,7 @@ export const RecipeDetail = memo(function DishDetail({
               <span className="w-8 h-8 text-amber-600 dark:text-amber-400">
                 <FiFilm className="w-full h-full" />
               </span>
-              Video Guide
+              {t.videoGuide}
             </h2>
             <div className="aspect-video rounded-2xl overflow-hidden bg-white/80 border border-black/5 dark:bg-slate-800/80 dark:border-white/5">
               <iframe

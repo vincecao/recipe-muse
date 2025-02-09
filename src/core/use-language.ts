@@ -16,3 +16,9 @@ export function useLanguage() {
 
   return { language, setLanguage };
 }
+
+export const LANGUAGE_MAPPING: { [key in Lang]: string } = {
+  en: 'English',
+  zh: 'Simplified Chinese',
+  ja: 'Japanese',
+};

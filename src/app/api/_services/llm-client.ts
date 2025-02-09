@@ -1,6 +1,6 @@
-import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
-import type { ChatCompletionMessageParam } from "openai/resources/index";
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
+import type { ChatCompletionMessageParam } from 'openai/resources/index';
 
 export type LLMResponse = {
   content: string;
@@ -45,22 +45,22 @@ export class LLMClient {
     const { messages, model, temperature = 0.0, max_tokens = 4096 } = payload;
 
     const provider = this.getProviderForModel(model);
-    if (provider === "deepseek") {
+    if (provider === 'deepseek') {
       return this.callDeepSeek(messages, model, temperature, max_tokens);
-    } else if (provider === "anthropic") {
+    } else if (provider === 'anthropic') {
       return this.callAnthropic(messages, model, temperature, max_tokens);
     } else {
-      throw new Error("Invalid model specified");
+      throw new Error('Invalid model specified');
     }
   }
 
-  private getProviderForModel(model: string): "deepseek" | "anthropic" {
-    if (model.startsWith("deepseek-")) {
-      return "deepseek";
-    } else if (model.startsWith("claude-")) {
-      return "anthropic";
+  private getProviderForModel(model: string): 'deepseek' | 'anthropic' {
+    if (model.startsWith('deepseek-')) {
+      return 'deepseek';
+    } else if (model.startsWith('claude-')) {
+      return 'anthropic';
     } else {
-      throw new Error("Unsupported model");
+      throw new Error('Unsupported model');
     }
   }
 
@@ -68,7 +68,7 @@ export class LLMClient {
     messages: ChatCompletionMessageParam[],
     model: LLMRequest['model'],
     temperature: number,
-    max_tokens: number
+    max_tokens: number,
   ): Promise<LLMResponse> {
     const completion = await this.openaiClient.chat.completions.create({
       messages,
@@ -80,19 +80,21 @@ export class LLMClient {
       // },
     });
 
+    console.log(JSON.stringify(completion, null, 2));
+
     const [choice] = completion.choices;
     if (!choice?.message?.content) {
-      throw new Error("No content in response");
+      throw new Error('No content in response');
     }
 
-    console.log({ content: choice.message.content })
+    console.log({ content: choice.message.content });
     return {
       content: choice.message.content,
       model: completion.model,
       usage: completion.usage || {
         prompt_tokens: 0,
         completion_tokens: 0,
-        total_tokens: 0
+        total_tokens: 0,
       },
     };
   }
@@ -101,16 +103,18 @@ export class LLMClient {
     messages: ChatCompletionMessageParam[],
     model: LLMRequest['model'],
     temperature: number,
-    max_tokens: number
+    max_tokens: number,
   ): Promise<LLMResponse> {
+    const system = messages.find(({ role }) => role === 'system')?.content as string | undefined;
     const msg = await this.anthropicClient.messages.create({
+      system,
       model,
       max_tokens,
       temperature,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      messages: messages as any,
+      messages: messages.filter(({ role }) => role !== 'system') as any,
     });
-    if (!("text" in msg.content[0])) throw new Error(`Anthropic API Error: No text response`);
+    if (!('text' in msg.content[0])) throw new Error(`Anthropic API Error: No text response`);
     return {
       content: msg.content[0].text,
       model: msg.model,

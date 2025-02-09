@@ -1,11 +1,23 @@
-export default function generateRecipeByName(name: string): [string | undefined, string, string | undefined, string] {
+export default function generateRecipeByName(name: string): [string, string, string | undefined, string] {
   return [
-    undefined,
-    `You are a recipe generator. Your task is to generate a recipe in JSON format based on the given name.
+    `You are a professional chef and recipe developer. Generate detailed, restaurant-quality recipes in strict JSON format. Follow all specifications precisely and maintain consistent formatting.`,
+    `Generate a detailed recipe for: "${name}"
 
-The output MUST be a single line stringified JSON object that can be parsed by JSON.parse(). Do not include any markdown, code blocks, or explanations.
+JSON Requirements:
+1. Strictly follow the interface structure
+2. Instructions must include:
+  - Ingredients used in each step
+  - Specific tools required
+  - Detailed preparation tips
+  - Cooking temperature and duration where applicable
+3. Ingredients must specify preparation state (chopped, diced, etc.) when relevant
+4. Include alternative ingredients where possible
+5. Cooking times must be in minutes
+6. Validate all measurements use allowed units
+7. Ensure title < 40 chars and description 30-80 chars
 
-The JSON object must strictly follow this TypeScript interface:
+Output ONLY the single line of stringified JSON without any formatting, commentary or markdown elements. 
+The JSON object must can be parsed by JSON.parse() and must strictly follow this TypeScript interface:
 
 type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 type Category = "Appetizers" | "Main Course" | "Desserts" | "Beverages" | "Cocktails";
@@ -92,18 +104,16 @@ interface Recipe {
   prepTime: number;
   cookTime: number;
   tools?: string[];
-  videoUrl?: string;
 }
 
-Generate a recipe for: "${name}"
-
-Example response:
+Example output:
 {
   "category": "Appetizers",
-  "title": "Truffle Burrata",,
-  // ... rest of fields ...
-}`,
+  "title": "Truffle Burrata",
+  ...
+}
+`,
     undefined,
-    '02-07-2025',
+    '02-08-2025',
   ];
 }

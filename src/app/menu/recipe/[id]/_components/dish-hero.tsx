@@ -2,12 +2,51 @@
 
 import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
-import { DbRecipe } from '~/core/type';
+import { DbRecipe, Lang } from '~/core/type';
 import cn from 'classnames';
 import { memo, PropsWithChildren } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
 import { useLanguage } from '~/core/use-language';
 import Image from 'next/image';
+
+// Text mapping for multiple languages
+const textMap: {[key in Lang]: {
+  prepTime: string;
+  calories: string;
+  ingredients: string;
+  serving: string;
+  featuresCategories: string;
+  allergyInfo: string;
+  level: string;
+}} = {
+  en: {
+    prepTime: 'Prep Time',
+    calories: 'Calories',
+    ingredients: 'Ingredients',
+    serving: 'Serving',
+    featuresCategories: 'Features & Categories',
+    allergyInfo: 'Allergy Info',
+    level: 'Level'
+  },
+  zh: {
+    prepTime: '准备时间',
+    calories: '卡路里',
+    ingredients: '食材',
+    serving: '份量',
+    featuresCategories: '特色与分类',
+    allergyInfo: '过敏信息',
+    level: '等级'
+  },
+  ja: {
+    prepTime: '準備時間',
+    calories: 'カロリー',
+    ingredients: '材料',
+    serving: '人数',
+    featuresCategories: '特徴とカテゴリー',
+    allergyInfo: 'アレルギー情報',
+    level: 'レベル'
+  }
+};
 
 export const DishHero = memo(function DishHero({ heroImgSrc, children }: PropsWithChildren<{ heroImgSrc: string }>) {
   return (
@@ -32,7 +71,9 @@ export const DishHero = memo(function DishHero({ heroImgSrc, children }: PropsWi
 
 export const DishHeroDetail = memo(function DishHeroDetail({ recipeRaw }: { recipeRaw: DbRecipe }) {
   const { language } = useLanguage();
-  const recipe = recipeRaw[language];
+  const recipe = recipeRaw[language] ?? recipeRaw.en;
+  const t = textMap[language] || textMap.en;
+
   return (
     <div className="absolute inset-x-0 bottom-10 p-3 sm:p-8">
       <div className="max-w-4xl mx-auto backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-6 bg-white/20 border border-black/5 dark:bg-slate-800/70 dark:border-white/10">
@@ -64,7 +105,7 @@ export const DishHeroDetail = memo(function DishHeroDetail({ recipeRaw }: { reci
                 },
               )}
             >
-              {recipe.difficulty} Level
+              {recipe.difficulty} {t.level}
             </span>
           </div>
         </div>
@@ -72,10 +113,10 @@ export const DishHeroDetail = memo(function DishHeroDetail({ recipeRaw }: { reci
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-3 mb-3 sm:mb-4">
           {[
-            { icon: <GoClock />, label: 'Prep Time', value: recipe.time },
-            { icon: <FaGripfire />, label: 'Calories', value: `${recipe.calories} kcal` },
-            { icon: <TiStarFullOutline />, label: 'Ingredients', value: `${recipe.ingredientsCount} items` },
-            { icon: <FaUsers />, label: 'Serving', value: recipe.servingSize },
+            { icon: <GoClock />, label: t.prepTime, value: recipe.time },
+            { icon: <FaGripfire />, label: t.calories, value: `${recipe.calories} kcal` },
+            { icon: <TiStarFullOutline />, label: t.ingredients, value: `${recipe.ingredientsCount} items` },
+            { icon: <FaUsers />, label: t.serving, value: recipe.servingSize },
           ].map((metric, index) => (
             <div
               key={index}
@@ -94,7 +135,7 @@ export const DishHeroDetail = memo(function DishHeroDetail({ recipeRaw }: { reci
         <div className="space-y-2 sm:space-y-4">
           {/* Tags Section */}
           <div className="space-y-1 sm:space-y-2">
-            <h3 className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">Features & Categories</h3>
+            <h3 className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">{t.featuresCategories}</h3>
             <div className="flex flex-wrap gap-1 sm:gap-2">
               {recipe.tags.map((tag) => (
                 <span
@@ -115,7 +156,7 @@ export const DishHeroDetail = memo(function DishHeroDetail({ recipeRaw }: { reci
             <div className="space-y-1 sm:space-y-2">
               <h3 className="text-xs sm:text-sm font-medium flex items-center gap-1 text-rose-600 dark:text-rose-300">
                 <span className="text-[10px] sm:text-sm">⚠️</span>
-                <span>Allergy Info</span>
+                <span>{t.allergyInfo}</span>
               </h3>
               <div className="flex flex-wrap gap-1 sm:gap-2">
                 {recipe.allergens.map((allergen) => (

@@ -1,12 +1,11 @@
 import axios from 'axios';
 import FormData from 'form-data';
 
-export async function getRecipeImages(descriptions: string[], count: number = 3): Promise<Buffer[]> {
+export async function getRecipeImages(prompt: string, count: number = 3): Promise<Buffer[]> {
   try {
-    const query = descriptions.join(' ');
     const requests = Array.from({ length: count }, () => {
       const formData = new FormData();
-      formData.append('prompt', query);
+      formData.append('prompt', prompt);
       formData.append('output_format', 'png');
 
       return axios.postForm(`https://api.stability.ai/v2beta/stable-image/generate/core`, formData, {

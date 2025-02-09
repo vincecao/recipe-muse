@@ -8,6 +8,24 @@ import { DbRecipe, Dish } from '~/core/type';
 import { useLanguage } from '~/core/use-language';
 import Image from 'next/image';
 
+const TEXT_MAPPING = {
+  en: {
+    header: 'COMPUTATIONAL CUISINE',
+    chefNote: "INNOVATION KITCHEN",
+    chefDescription: "Our menu blends culinary artistry with modern food technology. Each algorithmically-inspired dish is perfected through iterative refinement, balancing flavor science and seasonal ingredients. Bon appétit!"
+  },
+  zh: {
+    header: '数位美食',
+    chefNote: '创新厨房',
+    chefDescription: '我们的菜单融合烹饪艺术与现代食品科技，每道智能演算启发的菜肴都经过反复优化，平衡风味科学与时令食材。请慢用!'
+  },
+  ja: {
+    header: 'デジタル料理',
+    chefNote: '革新キッチン',
+    chefDescription: '当メニューは調理技術と現代の食品科学を融合。アルゴリズムに着想を得た料理は、味の科学と季節の食材のバランスを追求しています。どうぞお召し上がりください!'
+  }
+};
+
 export const MenuLayout = memo(function Layout({ children }: PropsWithChildren<unknown>) {
   return (
     <div className="w-full max-w-6xl mx-auto shadow-none sm:shadow-lg relative sm:rounded-xl bg-white dark:bg-slate-800">
@@ -22,12 +40,12 @@ export const MenuHeader = memo(function MenuHeader() {
     <div className="text-center pt-16 border-slate-200 dark:border-slate-700">
       <div className="flex flex-col items-center">
         <div className="flex items-center gap-3 my-3 w-48">
-          <div className="h-px flex-1 bg-current opacity-30" />
-          <div className="text-xl">✦</div>
-          <div className="h-px flex-1 bg-current opacity-30" />
+          <div className="h-px flex-1 bg-current opacity-30 dark:opacity-20 text-slate-900 dark:text-slate-200" />
+          <div className="text-xl text-slate-900 dark:text-slate-200">✦</div>
+          <div className="h-px flex-1 bg-current opacity-30 dark:opacity-20 text-slate-900 dark:text-slate-200" />
         </div>
-        <div className="text-sm tracking-[0.25em] font-light text-slate-600 dark:text-slate-400">
-          {language === 'en' ? 'ARTISANAL CUISINE' : '手工美食'}
+        <div className="text-sm tracking-[0.25em] font-light text-slate-600 dark:text-slate-200">
+          {TEXT_MAPPING[language]?.header || TEXT_MAPPING.en.header}
         </div>
       </div>
     </div>
@@ -81,7 +99,7 @@ export const DishLayout = memo(function DishCard({ children, bgImgSrc }: PropsWi
 
 export const DishItem = memo(function DishCard({ recipeRaw }: { recipeRaw: DbRecipe }) {
   const { language } = useLanguage();
-  const recipe = recipeRaw[language];
+  const recipe = recipeRaw[language] ?? recipeRaw.en;
   return (
     <div className="relative z-10 p-6">
       <div className="flex justify-between items-start gap-4">
@@ -152,16 +170,15 @@ export const DishItem = memo(function DishCard({ recipeRaw }: { recipeRaw: DbRec
 
 export const MenuFooter = memo(function MenuFooter() {
   const { language } = useLanguage();
+  const texts = TEXT_MAPPING[language] || TEXT_MAPPING.en;
   return (
     <div className="mt-16z pt-8 border-t border-slate-200 dark:border-slate-700">
       <div className="max-w-2xl mx-auto text-center">
         <h3 className="font-serif text-2xl mb-4 font-medium text-slate-800 dark:text-slate-200">
-          {language === 'en' ? "CHEF'S NOTE" : '主厨笔记'}
+          {texts.chefNote}
         </h3>
         <p className="text-sm leading-relaxed font-light text-slate-600 dark:text-slate-400">
-          {language === 'en'
-            ? "Our menu changes daily based on seasonal ingredients and chef's inspiration. Each dish is crafted with care, considering dietary preferences and cooking expertise. Enjoy your culinary journey!"
-            : '我们的菜单根据时令食材和主厨的灵感每日更新。每道菜都精心制作,考虑饮食偏好和烹饪技巧。享受您的烹饪之旅!'}
+          {texts.chefDescription}
         </p>
       </div>
     </div>

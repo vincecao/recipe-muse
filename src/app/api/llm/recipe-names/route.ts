@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Cuisine } from '~/core/type';
 import { LLMClient, type LLMRequest } from '~/app/api/_services/llm-client';
-import generate from '../_prompts/generate-home-recipe-names';
+import generate from '../_prompts/generate-recipe-names';
 
 export async function GET(request: Request) {
   try {
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const model = modelParam as LLMRequest['model'];
 
     // Generate names with validated parameters
-    const names = await generateHomeRecipeNames(cuisines, length, model);
+    const names = await generateRecipeNames(cuisines, length, model);
     return NextResponse.json(names);
   } catch (error) {
     console.error('Error generating recipe names:', error);
@@ -27,12 +27,17 @@ export async function GET(request: Request) {
   }
 }
 
-const generateHomeRecipeNames = async (cuisines: Cuisine[], length: number, model: LLMRequest['model']) => {
+const generateRecipeNames = async (cuisines: Cuisine[], length: number, model: LLMRequest['model']) => {
   const llmClient = new LLMClient();
   console.log('home recipe names started', cuisines, length, model);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [system, user, assistant, version] = generate(cuisines, length);
-  const response = await llmClient.generate({ messages: [{ role: 'user', content: user }], model });
-  console.log('home recipe names generated', response.content);
+  const [system, user] = generate(cuisines, length);
+  const response = await llmClient.generate({
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ],
+    model,
+  });
+  console.log('Recipe names generated', response.content);
   return JSON.parse(response.content);
 };

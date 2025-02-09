@@ -1,52 +1,52 @@
-export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
-export type Category = "Appetizers" | "Main Course" | "Desserts" | "Beverages" | "Cocktails";
+export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
+export type Category = 'Appetizers' | 'Main Course' | 'Desserts' | 'Beverages' | 'Cocktails';
 export type Cuisine =
-  | "Italian"
-  | "French"
-  | "Spanish"
-  | "Greek"
-  | "Mediterranean"
-  | "Mexican"
-  | "Brazilian"
-  | "Peruvian"
-  | "American"
-  | "Japanese"
-  | "Chinese"
-  | "Thai"
-  | "Indian"
-  | "Middle Eastern"
-  | "Lebanese"
-  | "Turkish"
-  | "Moroccan"
-  | "Ethiopian"
-  | "Korean"
-  | "Vietnamese"
-  | "Caribbean"
-  | "Cajun/Creole"
-  | "German"
-  | "British"
-  | "Irish"
-  | "Scandinavian"
-  | "Russian"
-  | "Hawaiian"
-  | "Filipino"
-  | "Malaysian"
-  | "Indonesian"
-  | "South African"
-  | "Soul Food"
-  | "Tex-Mex"
-  | "Israeli"
-  | "Polish"
-  | "Portuguese"
-  | "Argentinian"
-  | "Nordic"
-  | "Southern"
-  | "Pacific Islander"
-  | "Fusion"
-  | "Vegetarian"
-  | "Vegan"
-  | "Kosher"
-  | "BBQ";
+  | 'Italian'
+  | 'French'
+  | 'Spanish'
+  | 'Greek'
+  | 'Mediterranean'
+  | 'Mexican'
+  | 'Brazilian'
+  | 'Peruvian'
+  | 'American'
+  | 'Japanese'
+  | 'Chinese'
+  | 'Thai'
+  | 'Indian'
+  | 'Middle Eastern'
+  | 'Lebanese'
+  | 'Turkish'
+  | 'Moroccan'
+  | 'Ethiopian'
+  | 'Korean'
+  | 'Vietnamese'
+  | 'Caribbean'
+  | 'Cajun/Creole'
+  | 'German'
+  | 'British'
+  | 'Irish'
+  | 'Scandinavian'
+  | 'Russian'
+  | 'Hawaiian'
+  | 'Filipino'
+  | 'Malaysian'
+  | 'Indonesian'
+  | 'South African'
+  | 'Soul Food'
+  | 'Tex-Mex'
+  | 'Israeli'
+  | 'Polish'
+  | 'Portuguese'
+  | 'Argentinian'
+  | 'Nordic'
+  | 'Southern'
+  | 'Pacific Islander'
+  | 'Fusion'
+  | 'Vegetarian'
+  | 'Vegan'
+  | 'Kosher'
+  | 'BBQ';
 
 export interface Dish {
   id: string;
@@ -82,7 +82,7 @@ export type RecipeInstruction = {
   images?: string[];
   temperature?: {
     value: number;
-    unit: "C" | "F";
+    unit: 'C' | 'F';
   };
   duration?: number; // in minutes
 };
@@ -90,7 +90,23 @@ export type RecipeInstruction = {
 // Ingredient specification
 export interface RecipeIngredient {
   quantity: number;
-  unit: "g" | "kg" | "L" | "ml" | "tsp" | "tbsp" | "cup" | "pc" | "slice" | "oz" | "lb" | "bunch" | "dash" | "pinch" | "clove" | "scoop";
+  unit:
+    | 'g'
+    | 'kg'
+    | 'L'
+    | 'ml'
+    | 'tsp'
+    | 'tbsp'
+    | 'cup'
+    | 'pc'
+    | 'slice'
+    | 'oz'
+    | 'lb'
+    | 'bunch'
+    | 'dash'
+    | 'pinch'
+    | 'clove'
+    | 'scoop';
   name: string;
   preparation?: string;
   alternatives?: RecipeIngredient[];
@@ -104,11 +120,13 @@ export interface BaseDbRecipe {
     translator: string;
   };
   createdAt?: Date;
-  images: string[]; // Moved to root level
+  images: string[];
 }
 
 export type DbRecipe = BaseDbRecipe & {
-  [key in Lang]: Recipe; // Remove images from language-specific versions
+  en: Recipe;
+} & {
+  [key in Exclude<Lang, 'en'>]?: Recipe;
 };
 
-export type Lang = "zh" | "en"; // 'es' | 'fr' | 'ja' | 'ko' | 'de' | 'it' | 'pt' | 'ru'
+export type Lang = 'zh' | 'en' | 'ja'; // 'es' | 'fr' | 'ko' | 'de' | 'it' | 'pt' | 'ru'

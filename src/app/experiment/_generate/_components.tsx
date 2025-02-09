@@ -14,7 +14,7 @@ export default function View({ recipes }: { recipes: DbRecipe[] }) {
     <div className="flex">
       <MenuContent>
         {recipes.map((recipe, index) => {
-          const r = recipe[language];
+          const r = recipe[language] ?? recipe.en;
           return (
             <DishLayout key={r.id} bgImgSrc={recipe.images[0]}>
               <button onClick={() => setSelectedIndex(index)}>

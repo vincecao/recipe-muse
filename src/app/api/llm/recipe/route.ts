@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DbRecipe, Recipe } from '~/core/type';
+import { DbRecipe, Lang, Recipe } from '~/core/type';
 import { firebaseDb, normalizeRecipeName } from '~/app/api/_services/firebase';
 import { LLMClient, type LLMRequest } from '~/app/api/_services/llm-client';
 import { v4 as uuidv4 } from 'uuid';
 import { getRecipeImages } from '~/app/api/_services/image-generator';
 import { SupabaseStorageService } from '~/app/api/_services/supabase-storage';
-import generate from '../_prompts/generate-recipe-by-name';
+import generate from '../_prompts/generate-recipe';
 import translate from '../_prompts/translate-recipe';
+import image from '../_prompts/generate-recipe-image';
+import { LANGUAGE_MAPPING } from '~/core/use-language';
 
 const storageService = new SupabaseStorageService();
 const IMAGE_COUNT = 1;
@@ -36,9 +38,12 @@ export async function GET(request: NextRequest) {
 
 const generateRecipeByName = async (name: string, model: LLMRequest['model']) => {
   const generateImages = async (title: string, description: string) => {
-    const imageFiles = await getRecipeImages([title, description], IMAGE_COUNT);
+    const [prompt, imgVersion] = image(title, description);
+    const imageFiles = await getRecipeImages(prompt, IMAGE_COUNT);
     return Promise.all(
-      imageFiles.map((image) => storageService.upload(normalizeRecipeName(title), image, 'image/png')),
+      imageFiles.map((image) =>
+        storageService.upload(`${normalizeRecipeName(title)}_v${imgVersion}`, image, 'image/png'),
+      ),
     );
   };
 
@@ -66,17 +71,21 @@ const generateRecipeByName = async (name: string, model: LLMRequest['model']) =>
     const generateEnRecipe = async () => {
       // If not found, generate new recipe
       console.log('Generating new en recipe:', name);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const [system, user, assistant, recipeVer] = generate(name);
+      const [system, user, , recipeVer] = generate(name);
       version.recipe = recipeVer;
-      const response = await llmClient.generate({ messages: [{ role: 'user', content: user }], model });
+      const response = await llmClient.generate({
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user },
+        ],
+        model,
+      });
       return JSON.parse(response.content) as Omit<Recipe, 'id'>;
     };
 
-    const generateZhRecipe = async (r: Omit<Recipe, 'id'>) => {
-      console.log('Translating en recipe to zh:', name);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const [system, user, assistant, translatorVer] = translate(r, 'Simplified Chinese');
+    const generateTranslatedRecipe = async (r: Partial<Recipe>, lang: Lang) => {
+      console.log(`Translating en recipe to ${lang}:`, name);
+      const [system, user, , translatorVer] = translate(r, LANGUAGE_MAPPING[lang]);
       version.translator = translatorVer;
       const response = await llmClient.generate({
         messages: [
@@ -88,17 +97,32 @@ const generateRecipeByName = async (name: string, model: LLMRequest['model']) =>
       return JSON.parse(response.content) as Omit<Recipe, 'id'>;
     };
 
-    const enRecipe = await generateEnRecipe();
-    const zhRecipe = await generateZhRecipe(enRecipe);
+    const generateMultiTranslatedRecipes = async (r: Omit<Recipe, 'id'>) => {
+      const langs: Lang[] = ['zh', 'ja'];
+      const translatedRecipes = await Promise.all(
+        langs.map(async (lang) => {
+          const { title, description, time, tags, servingSize, allergens, cuisine, ingredients, instructions, tools } =
+            r;
+          const re = await generateTranslatedRecipe(
+            { title, description, time, tags, servingSize, allergens, cuisine, ingredients, instructions, tools },
+            lang,
+          );
+          return { [lang]: { ...r, ...re, id: `rid:${uuidv4()}` } };
+        }),
+      );
+      return translatedRecipes.reduce((prev, curr) => ({ ...prev, ...curr }), {});
+    };
 
-    console.log('Generating images from ability ai:', name);
+    const enRecipe = await generateEnRecipe();
+
+    console.log('Generating images from stability ai:', name);
     const images = await generateImages(enRecipe.title, enRecipe.description);
 
     // Store the new recipe in Firebase
     const stored = await firebaseDb.saveRecipeByName({
       id: uuidv4(),
       en: { ...enRecipe, id: `rid:${uuidv4()}` },
-      zh: { ...zhRecipe, id: `rid:${uuidv4()}` },
+      ...(await generateMultiTranslatedRecipes(enRecipe)),
       version,
       images,
     });
