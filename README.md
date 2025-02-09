@@ -18,15 +18,15 @@
 
 ## TODO
 
-[x] Recipe name and detail generate
-[x] Image generate
-[x] Multi-language support
-[] User ingredients, cuisine custom submission
-[] User signup/login, previous recipe history
-[] Schedule generation
-[] Backfill translator support
-[] Recipe web tooling (timer, comments)
-[] Payment plan
+- [x] Recipe name and detail generate
+- [x] Image generate
+- [x] Multi-language support
+- [] User ingredients, cuisine custom submission
+- [] User signup/login, previous recipe history
+- [] Schedule generation
+- [] Backfill translator support
+- [] Recipe web tooling (timer, comments)
+- [] Payment plan
 
 ## Tech Stack
 
