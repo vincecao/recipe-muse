@@ -8,7 +8,12 @@ import { SupabaseStorageService } from '~/app/api/_services/supabase-storage';
 import generate from '../_prompts/generate-recipe';
 import translate from '../_prompts/translate-recipe';
 import image from '../_prompts/generate-recipe-image';
-import { LANGUAGE_MAPPING } from '~/core/use-language';
+
+const LANGUAGE_MAPPING: { [key in Lang]: string } = {
+  en: 'English',
+  zh: 'Simplified Chinese',
+  ja: 'Japanese',
+};
 
 const storageService = new SupabaseStorageService();
 const IMAGE_COUNT = 1;
@@ -37,6 +42,9 @@ export async function GET(request: NextRequest) {
 }
 
 const generateRecipeByName = async (name: string, model: LLMRequest['model']) => {
+  const llmClient = new LLMClient();
+  const version: DbRecipe['version'] = { recipe: 'unknown', translator: 'unknown' };
+
   const generateImages = async (title: string, description: string) => {
     const [prompt, imgVersion] = image(title, description);
     const imageFiles = await getRecipeImages(prompt, IMAGE_COUNT);
@@ -45,6 +53,46 @@ const generateRecipeByName = async (name: string, model: LLMRequest['model']) =>
         storageService.upload(`${normalizeRecipeName(title)}_v${imgVersion}`, image, 'image/png'),
       ),
     );
+  };
+
+  const generateTranslatedRecipe = async (r: Partial<Recipe>, lang: Lang) => {
+    console.log(`Translating en recipe to ${lang}(${LANGUAGE_MAPPING[lang]}):`, name);
+    const [system, user, , translatorVer] = translate(r, LANGUAGE_MAPPING[lang]);
+    version.translator = translatorVer;
+    const response = await llmClient.generate({
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+      model,
+    });
+    return JSON.parse(response.content) as Omit<Recipe, 'id'>;
+  };
+
+  const generateMultiTranslatedRecipes = async (r: Omit<Recipe, 'id'>, langs: Lang[]) => {
+    const translatedRecipes = await Promise.all(
+      langs.map(async (lang) => {
+        const {
+          title,
+          description,
+          time,
+          tags,
+          servingSize,
+          allergens,
+          cuisine,
+          ingredients,
+          instructions,
+          tools,
+          ...original
+        } = r;
+        const translated = await generateTranslatedRecipe(
+          { title, description, time, tags, servingSize, allergens, cuisine, ingredients, instructions, tools },
+          lang,
+        );
+        return { [lang]: { ...original, ...translated, id: `rid:${uuidv4()}` } };
+      }),
+    );
+    return translatedRecipes.reduce((prev, curr) => ({ ...prev, ...curr }), {});
   };
 
   try {
@@ -62,12 +110,25 @@ const generateRecipeByName = async (name: string, model: LLMRequest['model']) =>
         return updatedRecipe;
       }
 
+      // Check and regenerate missing translations
+      if (!existingRecipe.zh || !existingRecipe.ja) {
+        const langs: Lang[] = [];
+        if (!existingRecipe.zh) langs.push('zh');
+        if (!existingRecipe.ja) langs.push('ja');
+
+        console.log('Generating missing translations for:', name);
+
+        // Update Firebase with new translation
+        const updatedRecipe = await firebaseDb.updateRecipe(existingRecipe.id, {
+          ...(await generateMultiTranslatedRecipes(existingRecipe.en, langs)),
+          version: { ...existingRecipe.version, translator: version.translator },
+        });
+        return updatedRecipe;
+      }
+
       return existingRecipe;
     }
 
-    const llmClient = new LLMClient();
-
-    const version: DbRecipe['version'] = { recipe: 'unknown', translator: 'unknown' };
     const generateEnRecipe = async () => {
       // If not found, generate new recipe
       console.log('Generating new en recipe:', name);
@@ -83,46 +144,18 @@ const generateRecipeByName = async (name: string, model: LLMRequest['model']) =>
       return JSON.parse(response.content) as Omit<Recipe, 'id'>;
     };
 
-    const generateTranslatedRecipe = async (r: Partial<Recipe>, lang: Lang) => {
-      console.log(`Translating en recipe to ${lang}:`, name);
-      const [system, user, , translatorVer] = translate(r, LANGUAGE_MAPPING[lang]);
-      version.translator = translatorVer;
-      const response = await llmClient.generate({
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user },
-        ],
-        model,
-      });
-      return JSON.parse(response.content) as Omit<Recipe, 'id'>;
-    };
-
-    const generateMultiTranslatedRecipes = async (r: Omit<Recipe, 'id'>) => {
-      const langs: Lang[] = ['zh', 'ja'];
-      const translatedRecipes = await Promise.all(
-        langs.map(async (lang) => {
-          const { title, description, time, tags, servingSize, allergens, cuisine, ingredients, instructions, tools } =
-            r;
-          const re = await generateTranslatedRecipe(
-            { title, description, time, tags, servingSize, allergens, cuisine, ingredients, instructions, tools },
-            lang,
-          );
-          return { [lang]: { ...r, ...re, id: `rid:${uuidv4()}` } };
-        }),
-      );
-      return translatedRecipes.reduce((prev, curr) => ({ ...prev, ...curr }), {});
-    };
-
     const enRecipe = await generateEnRecipe();
 
     console.log('Generating images from stability ai:', name);
     const images = await generateImages(enRecipe.title, enRecipe.description);
 
+    const langs: Lang[] = ['zh', 'ja'];
+
     // Store the new recipe in Firebase
     const stored = await firebaseDb.saveRecipeByName({
       id: uuidv4(),
       en: { ...enRecipe, id: `rid:${uuidv4()}` },
-      ...(await generateMultiTranslatedRecipes(enRecipe)),
+      ...(await generateMultiTranslatedRecipes(enRecipe, langs)),
       version,
       images,
     });

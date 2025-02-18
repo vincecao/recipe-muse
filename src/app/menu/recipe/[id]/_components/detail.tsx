@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fi';
 import { DbRecipe, Lang, RecipeIngredient, RecipeInstruction } from '~/core/type';
 import cn from 'classnames';
-import { useLanguage } from '~/core/use-language';
+import useLanguage from '~/core/use-language';
 import Image from 'next/image';
 
 // Text mapping for multiple languages
@@ -73,7 +73,7 @@ const textMap: {[key in Lang]: {
     difficultyLevel: '难度',
     beginner: '初级',
     intermediate: '中级',
-    advanced: '高级'
+    advanced: '高级',
   },
   ja: {
     nutrition: '栄養情報',
@@ -92,7 +92,7 @@ const textMap: {[key in Lang]: {
     difficultyLevel: '難易度',
     beginner: '初級',
     intermediate: '中級',
-    advanced: '上級'
+    advanced: '上級',
   },
 };
 
@@ -162,6 +162,7 @@ const IngredientsList = memo(function IngredientsList({ ingredients }: { ingredi
 });
 
 const InstructionsStepper = memo(function InstructionsStepper({ instructions }: { instructions: RecipeInstruction[] }) {
+  const { language } = useLanguage();
   return (
     <div className="space-y-2 sm:space-y-3">
       {instructions
@@ -185,7 +186,7 @@ const InstructionsStepper = memo(function InstructionsStepper({ instructions }: 
                   {instruction.duration && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100/80 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">
                       <FiClock className="w-3 h-3" />
-                      {instruction.duration}m
+                      {instruction.duration}{language === 'zh' ? '分钟' : language === 'ja' ? '分' : 'm'}
                     </span>
                   )}
                   {instruction.temperature && (

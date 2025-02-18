@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { useLanguage } from '~/core/use-language';
+import useLanguage from '~/core/use-language';
 import { Lang } from '~/core/type';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import cn from 'classnames';
@@ -38,7 +38,7 @@ const LanguageButton = () => {
               setLanguage(code as Lang);
               setIsOpen(false);
             }}
-            className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 dark:text-white
+            className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 text-black dark:text-white
               ${
                 language === code
                   ? 'bg-gray-100/60 dark:bg-gray-800/60'

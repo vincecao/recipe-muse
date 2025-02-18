@@ -6,7 +6,7 @@ import { DbRecipe, Lang } from '~/core/type';
 import cn from 'classnames';
 import { memo, PropsWithChildren } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
-import { useLanguage } from '~/core/use-language';
+import useLanguage from '~/core/use-language';
 import Image from 'next/image';
 
 // Text mapping for multiple languages

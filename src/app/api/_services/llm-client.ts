@@ -80,14 +80,12 @@ export class LLMClient {
       // },
     });
 
-    console.log(JSON.stringify(completion, null, 2));
-
     const [choice] = completion.choices;
     if (!choice?.message?.content) {
       throw new Error('No content in response');
     }
 
-    console.log({ content: choice.message.content });
+    console.log('Model content', choice.message.content);
     return {
       content: choice.message.content,
       model: completion.model,

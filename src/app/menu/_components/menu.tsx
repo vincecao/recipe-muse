@@ -5,7 +5,7 @@ import { FaGripfire, FaUsers } from 'react-icons/fa';
 import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
 import { DbRecipe, Dish } from '~/core/type';
-import { useLanguage } from '~/core/use-language';
+import useLanguage from '~/core/use-language';
 import Image from 'next/image';
 
 const TEXT_MAPPING = {

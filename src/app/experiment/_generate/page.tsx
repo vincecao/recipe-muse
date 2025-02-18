@@ -1,11 +1,11 @@
 import { Cuisine, DbRecipe } from '~/core/type';
 import { cache } from 'react';
-import { DeepseekModel, LLMRequest } from '~/app/api/_services/llm-client';
+import { AnthropicModel, LLMRequest } from '~/app/api/_services/llm-client';
 import axios, { isAxiosError } from 'axios';
 
 const LENGTH = 1;
 const CUISINES: Cuisine[] = ['Japanese'];
-const MODEL: LLMRequest['model'] = DeepseekModel.CHAT;
+const MODEL: LLMRequest['model'] = AnthropicModel.SONNET;
 
 const PRESET_RECIPE_NAMES: string[] = [];
 const PRESET_RECIPES: DbRecipe[] = [];
