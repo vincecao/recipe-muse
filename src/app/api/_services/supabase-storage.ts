@@ -23,7 +23,7 @@ export class SupabaseStorageService {
     return data.path;
   }
 
-  async getSignedUrl(filePath: string, expiresIn: number = CACHE_EXPIRATION): Promise<string> {
+  async getSignedUrl(filePath: string, expiresIn: number = CACHE_EXPIRATION + 36000): Promise<string> {
     const bucket = 'recipe-muse';
     // @todo remove below when ready
     filePath = filePath.replace('https://knosijoagudkextilhuz.supabase.co/storage/v1/object/public/recipe-muse', '');
