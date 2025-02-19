@@ -2,7 +2,7 @@
 
 import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
-import { DbRecipe, Lang } from '~/core/type';
+import { DbRecipe, difficultyTranslations, Lang } from '~/core/type';
 import cn from 'classnames';
 import { memo, PropsWithChildren } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
@@ -105,7 +105,7 @@ export const DishHeroDetail = memo(function DishHeroDetail({ recipeRaw }: { reci
                 },
               )}
             >
-              {recipe.difficulty} {t.level}
+              {difficultyTranslations[recipe.difficulty][language]} {t.level}
             </span>
           </div>
         </div>

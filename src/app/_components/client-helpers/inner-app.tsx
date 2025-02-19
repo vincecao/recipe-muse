@@ -11,7 +11,7 @@ import ThemeButton from '../theme-button';
 export default function InnerApp({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const allowHome = pathname !== '/';
-  const allowBack = !['/', '/about-us'].includes(pathname);
+  const allowBack = !['/menu', '/about-us'].includes(pathname);
   const showAboutUs = pathname !== '/about-us';
 
   return (

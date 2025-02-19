@@ -13,12 +13,15 @@
 ## Screenshots
 
 Home Menu
-![Mobile View](resources/capture/mobile.png)
+
+![Mobile View](resources/capture/menu.png)
 
 Generate recipe names from input
+
 ![Menu Page](resources/capture/recipe-generator.png)
 
 Generated multi-language recipe detail and instructions
+
 ![Recipe Detail](resources/capture/generated-recipe.png)
 
 ## TODO
@@ -26,17 +29,17 @@ Generated multi-language recipe detail and instructions
 - [x] Recipe name and detail generate
 - [x] Image generate
 - [x] Multi-language support
-- [] User ingredients, cuisine custom submission
-- [] User signup/login, previous recipe history
-- [] Schedule generation
-- [] Backfill translator support
-- [] Recipe web tooling (timer, comments)
-- [] Payment plan
+- [ ] User ingredients, cuisine custom submission
+- [ ] User signup/login, previous recipe history
+- [ ] Schedule generation
+- [ ] Backfill translator support
+- [ ] Recipe web tooling (timer, comments)
+- [ ] Payment plan
 
 ## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org)
-- **Integrated LLM**. [Deepseek](https://platform.deepseek.com/) (chat, reasoner), [Anthropic](https://www.anthropic.com/api) (opus, sonnet 3.5), [Stability.ai](https://platform.stability.ai/) (Stable Image Core), [Open router](https://openrouter.ai/)
+- **Integrated LLM**. [Openai](https://openai.com/api/) (gpt-4o-mini, o3-mini), [Anthropic](https://www.anthropic.com/api) (opus, sonnet 3.5), [Deepseek](https://platform.deepseek.com/) (chat, reasoner), [Stability.ai](https://platform.stability.ai/) (Stable Image Core), [Open router](https://openrouter.ai/)
 - **Styling**: TailwindCSS with Mantine components
 - **API**: RESTful endpoints with caching
 - **Database**: Firebase, Supabase
@@ -45,7 +48,15 @@ Generated multi-language recipe detail and instructions
 ## Getting Started
 
 1. Clone the repository
-2. Install dependencies:
+2. Install dependencies
+
+``` bash
+pnpm i
+
+# finish env file based on sample
+
+pnpm run dev
+```
 
 ## License
 

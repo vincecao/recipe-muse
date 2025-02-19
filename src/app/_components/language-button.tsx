@@ -22,7 +22,7 @@ const LanguageButton = () => {
         )}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="font-sans">{LANGUAGE_NAME_MAPPING[language].slice(0, 2)}</span>
+        <span className="font-sans">{LANGUAGE_NAME_MAPPING[language]}</span>
         <MdKeyboardArrowDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 

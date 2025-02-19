@@ -4,26 +4,29 @@ import { memo, PropsWithChildren } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
 import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
-import { DbRecipe, Dish } from '~/core/type';
+import { categoryTranslations, DbRecipe, difficultyTranslations, Dish } from '~/core/type';
 import useLanguage from '~/core/use-language';
 import Image from 'next/image';
 
 const TEXT_MAPPING = {
   en: {
     header: 'COMPUTATIONAL CUISINE',
-    chefNote: "INNOVATION KITCHEN",
-    chefDescription: "Our menu blends culinary artistry with modern food technology. Each algorithmically-inspired dish is perfected through iterative refinement, balancing flavor science and seasonal ingredients. Bon appétit!"
+    chefNote: 'INNOVATION KITCHEN',
+    chefDescription:
+      'Our menu blends culinary artistry with modern food technology. Each algorithmically-inspired dish is perfected through iterative refinement, balancing flavor science and seasonal ingredients. Bon appétit!',
   },
   zh: {
     header: '数位美食',
     chefNote: '创新厨房',
-    chefDescription: '我们的菜单融合烹饪艺术与现代食品科技，每道智能演算启发的菜肴都经过反复优化，平衡风味科学与时令食材。请慢用!'
+    chefDescription:
+      '我们的菜单融合烹饪艺术与现代食品科技，每道智能演算启发的菜肴都经过反复优化，平衡风味科学与时令食材。请慢用!',
   },
   ja: {
     header: 'デジタル料理',
     chefNote: '革新キッチン',
-    chefDescription: '当メニューは調理技術と現代の食品科学を融合。アルゴリズムに着想を得た料理は、味の科学と季節の食材のバランスを追求しています。どうぞお召し上がりください!'
-  }
+    chefDescription:
+      '当メニューは調理技術と現代の食品科学を融合。アルゴリズムに着想を得た料理は、味の科学と季節の食材のバランスを追求しています。どうぞお召し上がりください!',
+  },
 };
 
 export const MenuLayout = memo(function Layout({ children }: PropsWithChildren<unknown>) {
@@ -60,12 +63,14 @@ export const MenuSection = memo(function MenuSection({
   category,
   children,
 }: PropsWithChildren<{ category: Dish['category'] }>) {
+  const { language } = useLanguage();
+
   return (
     <section className="space-y-6">
       <div className="flex items-center gap-4">
         <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
         <h2 className="font-serif text-2xl tracking-[0.15em] text-center font-medium text-slate-800 dark:text-slate-200">
-          {category.toUpperCase()}
+          {categoryTranslations[category][language]}
         </h2>
         <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
       </div>
@@ -143,7 +148,7 @@ export const DishItem = memo(function DishCard({ recipeRaw }: { recipeRaw: DbRec
                   }
                 `}
             >
-              {recipe.difficulty}
+              {difficultyTranslations[recipe.difficulty][language]}
             </span>
             <div className="flex gap-4">
               {[
@@ -174,12 +179,8 @@ export const MenuFooter = memo(function MenuFooter() {
   return (
     <div className="mt-16z pt-8 border-t border-slate-200 dark:border-slate-700">
       <div className="max-w-2xl mx-auto text-center">
-        <h3 className="font-serif text-2xl mb-4 font-medium text-slate-800 dark:text-slate-200">
-          {texts.chefNote}
-        </h3>
-        <p className="text-sm leading-relaxed font-light text-slate-600 dark:text-slate-400">
-          {texts.chefDescription}
-        </p>
+        <h3 className="font-serif text-2xl mb-4 font-medium text-slate-800 dark:text-slate-200">{texts.chefNote}</h3>
+        <p className="text-sm leading-relaxed font-light text-slate-600 dark:text-slate-400">{texts.chefDescription}</p>
       </div>
     </div>
   );

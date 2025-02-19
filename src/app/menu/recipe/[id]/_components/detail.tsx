@@ -12,7 +12,7 @@ import {
   FiShoppingBag,
   FiUsers,
 } from 'react-icons/fi';
-import { DbRecipe, Lang, RecipeIngredient, RecipeInstruction } from '~/core/type';
+import { categoryTranslations, DbRecipe, difficultyTranslations, Lang, RecipeIngredient, RecipeInstruction } from '~/core/type';
 import cn from 'classnames';
 import useLanguage from '~/core/use-language';
 import Image from 'next/image';
@@ -33,9 +33,6 @@ const textMap: {[key in Lang]: {
   prepCookTime: string;
   serves: string;
   difficultyLevel: string;
-  beginner: string;
-  intermediate: string;
-  advanced: string;
 }} = {
   en: {
     nutrition: 'Nutrition',
@@ -52,9 +49,6 @@ const textMap: {[key in Lang]: {
     prepCookTime: 'm prep + m cook',
     serves: 'Serves',
     difficultyLevel: 'Level',
-    beginner: 'Beginner',
-    intermediate: 'Intermediate',
-    advanced: 'Advanced',
   },
   zh: {
     nutrition: '营养信息',
@@ -71,9 +65,6 @@ const textMap: {[key in Lang]: {
     prepCookTime: '分钟准备 + 分钟烹饪',
     serves: '份量',
     difficultyLevel: '难度',
-    beginner: '初级',
-    intermediate: '中级',
-    advanced: '高级',
   },
   ja: {
     nutrition: '栄養情報',
@@ -90,9 +81,6 @@ const textMap: {[key in Lang]: {
     prepCookTime: '分準備 + 分調理',
     serves: '人数',
     difficultyLevel: '難易度',
-    beginner: '初級',
-    intermediate: '中級',
-    advanced: '上級',
   },
 };
 
@@ -274,7 +262,7 @@ export const RecipeDetail = memo(function DishDetail({
         {/* Category and Type */}
         <div className="flex flex-wrap justify-center gap-2">
           <span className="px-3 py-1 sm:px-4 sm:py-2 rounded-full text-sm font-medium backdrop-blur-md bg-amber-100/80 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-            {recipe.category}
+            {categoryTranslations[recipe.category][language]}
           </span>
           <span className="px-3 py-1 sm:px-4 sm:py-2 rounded-full text-sm font-medium backdrop-blur-md bg-white/80 text-slate-700 dark:bg-slate-800/80 dark:text-slate-300">
             {recipe.cuisine.join(', ')}
@@ -322,7 +310,7 @@ export const RecipeDetail = memo(function DishDetail({
                     : ''
                 }`}
               >
-                {t[recipe.difficulty.toLowerCase() as keyof typeof t]} {t.difficultyLevel}
+                {difficultyTranslations[recipe.difficulty][language]} {t.difficultyLevel}
               </span>
             </div>
 
