@@ -37,7 +37,7 @@ export default function InnerApp({ children }: { children: React.ReactNode }) {
           <a href="https://github.com/vincecao/recipe-muse" target="_black">
             Recipe Muse{' '}
           </a>
-          @2024{' '}
+          @2025{' '}
           <a href="https://www.vince-amazing.com/" target="_black">
             vincecao
           </a>

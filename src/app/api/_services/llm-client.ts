@@ -12,13 +12,18 @@ export type LLMResponse = {
 };
 
 export enum DeepseekModel {
-  CHAT = 'deepseek-chat',
-  REASONER = 'deepseek-reasoner',
+  CHAT = 'deepseek/deepseek-chat',
+  REASONER = 'deepseek/deepseek-reasoner',
 }
 
 export enum AnthropicModel {
   SONNET = 'claude-3-5-sonnet-20241022',
   OPUS = 'claude-3-opus-20240229',
+}
+
+export enum OpenAIModel {
+  GPT_4O_MINI = 'openai/gpt-4o-mini',
+  O3_MINI = 'openai/o3-mini',
 }
 
 export type LLMRequest = {
@@ -34,8 +39,8 @@ export class LLMClient {
 
   constructor() {
     this.openaiClient = new OpenAI({
-      baseURL: 'https://openrouter.ai/api/v1', // "https://api.deepseek.com",
-      apiKey: process.env.OPEN_ROUTER_API_KEY, //process.env.DEEPSEEK_API_KEY ?? "",
+      baseURL: 'https://openrouter.ai/api/v1',
+      apiKey: process.env.OPEN_ROUTER_API_KEY,
     });
 
     this.anthropicClient = new Anthropic();
@@ -45,8 +50,8 @@ export class LLMClient {
     const { messages, model, temperature = 0.0, max_tokens = 4096 } = payload;
 
     const provider = this.getProviderForModel(model);
-    if (provider === 'deepseek') {
-      return this.callDeepSeek(messages, model, temperature, max_tokens);
+    if (provider === 'open-router') {
+      return this.callOpenRouter(messages, model, temperature, max_tokens);
     } else if (provider === 'anthropic') {
       return this.callAnthropic(messages, model, temperature, max_tokens);
     } else {
@@ -54,9 +59,9 @@ export class LLMClient {
     }
   }
 
-  private getProviderForModel(model: string): 'deepseek' | 'anthropic' {
-    if (model.startsWith('deepseek-')) {
-      return 'deepseek';
+  private getProviderForModel(model: string): 'anthropic' | 'open-router' {
+    if (model.includes('/')) {
+      return 'open-router';
     } else if (model.startsWith('claude-')) {
       return 'anthropic';
     } else {
@@ -64,7 +69,7 @@ export class LLMClient {
     }
   }
 
-  private async callDeepSeek(
+  private async callOpenRouter(
     messages: ChatCompletionMessageParam[],
     model: LLMRequest['model'],
     temperature: number,
@@ -72,7 +77,7 @@ export class LLMClient {
   ): Promise<LLMResponse> {
     const completion = await this.openaiClient.chat.completions.create({
       messages,
-      model: `deepseek/${model}`,
+      model,
       temperature,
       max_tokens,
       // response_format: {

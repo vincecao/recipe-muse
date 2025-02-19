@@ -12,9 +12,14 @@
 
 ## Screenshots
 
+Home Menu
 ![Mobile View](resources/capture/mobile.png)
-![Menu Page](resources/capture/menu.png)
-![Recipe Detail](resources/capture/recipe.png)
+
+Generate recipe names from input
+![Menu Page](resources/capture/recipe-generator.png)
+
+Generated multi-language recipe detail and instructions
+![Recipe Detail](resources/capture/generated-recipe.png)
 
 ## TODO
 

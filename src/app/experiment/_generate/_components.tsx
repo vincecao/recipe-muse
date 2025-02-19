@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { DishItem, DishLayout, MenuContent } from '~/app/menu/_components/menu';
 import { RecipeDetail } from '~/app/menu/recipe/[id]/_components/detail';
@@ -24,9 +24,11 @@ export default function View({ recipes }: { recipes: DbRecipe[] }) {
           );
         })}
       </MenuContent>
-      <MenuContent>
-        <RecipeDetail recipeRaw={recipes[selectedIndex]} images={recipes[selectedIndex].images} />
-      </MenuContent>
+      {recipes[selectedIndex] && (
+        <MenuContent>
+          <RecipeDetail recipeRaw={recipes[selectedIndex]} images={recipes[selectedIndex].images} />
+        </MenuContent>
+      )}
     </div>
   );
 }
