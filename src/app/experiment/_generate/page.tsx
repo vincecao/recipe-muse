@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import View from './_components';
 import useLanguage from '~/core/use-language';
+import { revalidateTag } from 'next/cache';
 
 const CUISINE_OPTIONS: { en: Cuisine; zh: string; ja: string }[] = [
   { en: 'Italian', zh: '意大利菜', ja: 'イタリア料理' },
@@ -194,6 +195,10 @@ export default function GeneratePage() {
     try {
       const name = generateType === 'generate' ? selectedName : watch('dishName');
       const generated = await generateRecipe(name!, model);
+      await fetch('/api/revalidate', {
+        method: 'POST',
+        body: JSON.stringify({ pathname: '/menu' }),
+      });
       setGeneratedRecipes((curr) => [...curr, generated]);
       setStep(1);
     } finally {

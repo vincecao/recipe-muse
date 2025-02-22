@@ -7,11 +7,13 @@ import BackButton from '../back-button';
 import HomeButton from '../home-button';
 import LanguageButton from '../language-button';
 import ThemeButton from '../theme-button';
+import RefreshButton from '../refresh-button';
 
 export default function InnerApp({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const allowHome = pathname !== '/';
   const allowBack = !['/menu', '/about-us'].includes(pathname);
+  const allowRefresh = pathname.startsWith("/menu")
   const showAboutUs = pathname !== '/about-us';
 
   return (
@@ -32,6 +34,7 @@ export default function InnerApp({ children }: { children: React.ReactNode }) {
         <div className="fixed left-4 top-4 flex gap-2 z-20">
           {allowHome && <HomeButton />}
           {allowBack && <BackButton />}
+          {allowRefresh && <RefreshButton />}
         </div>
         <div className="fixed bottom-0 left-0 right-0 text-center py-4 text-sm text-gray-600 dark:text-gray-400 z-0">
           <a href="https://github.com/vincecao/recipe-muse" target="_black">
