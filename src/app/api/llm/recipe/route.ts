@@ -195,7 +195,7 @@ const generateRecipeByName = async (name: string, model: LLMRequest['model']) =>
       images,
     });
     console.log('New recipe saved to database:', name);
-    return stored;
+    return await firebaseDb.getRecipe(stored.id);
   } catch (error) {
     console.error('Error in generateRecipeByName:', error);
     throw error;

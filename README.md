@@ -10,7 +10,9 @@
 - 🎨 Modern UI with interactive components
 - 🔄 Real-time recipe updates and caching
 
-## Screenshots
+## Demonstration
+
+<video src='https://github.com/vincecao/recipe-muse/blob/main/resources/recipe-muse.mp4?raw=true' width="600"/>
 
 Home Menu
 
