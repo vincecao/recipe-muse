@@ -11,7 +11,7 @@ export default function View({ recipes }: { recipes: DbRecipe[] }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   return (
-    <div className="flex">
+    <div className="grid grid-cols-3">
       <MenuContent>
         {recipes.map((recipe, index) => {
           const r = recipe[language] ?? recipe.en;
@@ -24,11 +24,13 @@ export default function View({ recipes }: { recipes: DbRecipe[] }) {
           );
         })}
       </MenuContent>
-      {recipes[selectedIndex] && (
-        <MenuContent>
-          <RecipeDetail recipeRaw={recipes[selectedIndex]} images={recipes[selectedIndex].images} />
-        </MenuContent>
-      )}
+      <div className="col-span-2">
+        {recipes[selectedIndex] && (
+          <MenuContent>
+            <RecipeDetail recipeRaw={recipes[selectedIndex]} images={recipes[selectedIndex].images} />
+          </MenuContent>
+        )}
+      </div>
     </div>
   );
 }

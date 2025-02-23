@@ -12,7 +12,7 @@
 
 ## Demonstration
 
-https://github.com/user-attachments/assets/5ac62383-b8ee-4a88-ba54-ecf47cda5525
+https://github.com/user-attachments/assets/fe4e4173-939e-4cd5-b7ed-2c76ccee7d18
 
 Home Menu
 
@@ -40,7 +40,7 @@ Generated multi-language recipe detail and instructions
 
 ## Tech Stack
 
-- **Framework**: [Next.js](https://nextjs.org) + [Redis cache](https://redis.io/)
+- **Framework**: [Next.js](https://nextjs.org) with Server-Sent Events (SSE) + [Redis cache](https://redis.io/)
 - **Integrated LLM**. [Openai](https://openai.com/api/) (gpt-4o-mini, o3-mini), [Anthropic](https://www.anthropic.com/api) (opus, sonnet 3.5), [Deepseek](https://platform.deepseek.com/) (chat, reasoner), [Stability.ai](https://platform.stability.ai/) (Stable Image Core), [Open router](https://openrouter.ai/)
 - **Styling**: [TailwindCSS](https://tailwindcss.com/) with [Mantine](https://ui.mantine.dev/) components
 - **API**: RESTful endpoints with caching

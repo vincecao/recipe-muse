@@ -13,7 +13,7 @@ const RefreshButton = () => {
 
   const handleRefresh = async () => {
     setLoading(true);
-    
+
     try {
       // Call server action through API route
       await fetch(`${origin}/api/revalidate`, {
@@ -31,10 +31,11 @@ const RefreshButton = () => {
   };
 
   return (
-    <NavButton 
-      text="Refresh" 
-      icon={<FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />} 
+    <NavButton
+      text="Refresh"
+      icon={<FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />}
       onClick={handleRefresh}
+      tooltip="Cache Free Refresh"
     />
   );
 };
