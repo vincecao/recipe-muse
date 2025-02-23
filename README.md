@@ -12,7 +12,7 @@
 
 ## Demonstration
 
-<video src='https://github.com/vincecao/recipe-muse/blob/main/resources/recipe-muse.mp4?raw=true' width="600"/>
+https://github.com/user-attachments/assets/5ac62383-b8ee-4a88-ba54-ecf47cda5525
 
 Home Menu
 
