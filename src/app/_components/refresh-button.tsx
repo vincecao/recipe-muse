@@ -4,6 +4,8 @@ import { FiRefreshCw } from 'react-icons/fi';
 import NavButton from './nav-button';
 import { usePathname, useRouter } from 'next/navigation';
 
+const origin = process.env.NEXT_PUBLIC_BASE_URL;
+
 const RefreshButton = () => {
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
@@ -14,7 +16,7 @@ const RefreshButton = () => {
     
     try {
       // Call server action through API route
-      await fetch('/api/revalidate', {
+      await fetch(`${origin}/api/revalidate`, {
         method: 'POST',
         body: JSON.stringify({ pathname }),
       });

@@ -3,11 +3,12 @@ import { DbRecipe, Lang, Recipe } from '~/core/type';
 import { firebaseDb, normalizeRecipeName } from '~/app/api/_services/firebase';
 import { LLMClient, type LLMRequest } from '~/app/api/_services/llm-client';
 import { v4 as uuidv4 } from 'uuid';
-import { getRecipeImages } from '~/app/api/_services/image-generator';
+import { getRecipeImages, OUTPUT_CONTENT_TYPE } from '~/app/api/_services/image-generator';
 import { SupabaseStorageService } from '~/app/api/_services/supabase-storage';
 import generate from '../_prompts/generate-recipe';
 import translate from '../_prompts/translate-recipe';
 import image from '../_prompts/generate-recipe-image';
+import sharp from 'sharp';
 
 const LANGUAGE_MAPPING: { [key in Lang]: string } = {
   en: 'English',
@@ -48,9 +49,43 @@ const generateRecipeByName = async (name: string, model: LLMRequest['model']) =>
   const generateImages = async (title: string, description: string) => {
     const [prompt, imgVersion] = image(title, description);
     const imageFiles = await getRecipeImages(prompt, IMAGE_COUNT);
+
+    // Process images with fallback
+    const processedImages = await Promise.all(
+      imageFiles.map(async (originalBuffer) => {
+        try {
+          const processedBuffer = await sharp(originalBuffer)
+            .webp({
+              quality: 80,
+              alphaQuality: 80,
+              lossless: false,
+              force: true,
+            })
+            .toBuffer();
+
+          return {
+            buffer: processedBuffer,
+            contentType: 'image/webp',
+            success: true,
+          };
+        } catch (error) {
+          console.warn('WebP conversion failed, using original format:', error);
+          return {
+            buffer: originalBuffer,
+            contentType: `image/${OUTPUT_CONTENT_TYPE}`,
+            success: false,
+          };
+        }
+      }),
+    );
+
     return Promise.all(
-      imageFiles.map((image) =>
-        storageService.upload(`${normalizeRecipeName(title)}_v${imgVersion}`, image, 'image/png'),
+      processedImages.map(({ buffer, contentType }, index) =>
+        storageService.upload(
+          `${normalizeRecipeName(title)}_v${imgVersion}_${index}.${contentType.split('/')[1]}`,
+          buffer,
+          contentType,
+        ),
       ),
     );
   };

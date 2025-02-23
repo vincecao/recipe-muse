@@ -1,4 +1,4 @@
-import { CACHE_EXPIRATION } from '~/core/cache';
+import { cachedRedisFetch, NEXTJS_CACHE_EXPIRATION } from '~/core/cache';
 import { MenuLayout } from '../../_components/menu';
 import { RecipeDetail } from './_components/detail';
 import { DishHero, DishHeroDetail } from './_components/dish-hero';
@@ -11,23 +11,18 @@ interface PageProps {
 async function fetchRecipe(id: string): Promise<DbRecipe | undefined> {
   let recipe: DbRecipe | undefined;
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipe/${id}`, {
-      next: { tags: [`menu-recipe`, `id:${id}`], revalidate: CACHE_EXPIRATION },
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) throw new Error('Recipe not found');
-      throw new Error('Failed to fetch recipe');
-    }
-
-    const data = await response.json();
+    const res = await cachedRedisFetch<DbRecipe>(`recipe-${id}`, async () => 
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipe/${id}`, {
+        next: { tags: [`menu-recipe`, `id:${id}`], revalidate: NEXTJS_CACHE_EXPIRATION },
+      }).then(r => r.json())
+    );
 
     // Add runtime validation
-    if (!data?.id || !data.en?.title) {
+    if (!res?.id || !res.en?.title) {
       throw new Error('Invalid recipe data structure');
     }
 
-    recipe = data;
+    recipe = res;
   } catch (error) {
     console.error(error);
   }

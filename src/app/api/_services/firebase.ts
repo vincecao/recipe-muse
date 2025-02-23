@@ -2,8 +2,8 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getDatabase, ref, get, set, remove, Database, update } from 'firebase/database';
 import type { DbRecipe } from '~/core/type';
 import { SupabaseStorageService } from './supabase-storage';
+import { SUPABASE_CACHE_EXPIRATION } from '~/core/cache';
 
-// Your Firebase configuration object
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -39,11 +39,15 @@ class FirebaseService {
       const snapshot = await get(recipeRef);
       let recipe = snapshot.exists() ? (snapshot.val() as DbRecipe) : null;
       if (recipe) {
+        const expiresIn = SUPABASE_CACHE_EXPIRATION;
+        const images = await Promise.all((recipe.images ?? []).map((i) => this.supaClient.getSignedUrl(i, expiresIn)));
+        console.log('Supabase images url created', recipe.en.title, images, expiresIn);
         recipe = {
           ...recipe,
-          images: await Promise.all((recipe.images ?? []).map((i) => this.supaClient.getSignedUrl(i))),
+          images,
         };
       }
+
       return recipe;
     } catch (error) {
       console.error('Error fetching recipe:', error);
@@ -57,10 +61,17 @@ class FirebaseService {
       const snapshot = await get(recipesRef);
       let recipes = snapshot.exists() ? (Object.values(snapshot.val()) as DbRecipe[]) : [];
       recipes = await Promise.all(
-        recipes.map(async (recipe) => ({
-          ...recipe,
-          images: await Promise.all((recipe.images ?? []).map((i) => this.supaClient.getSignedUrl(i))),
-        })),
+        recipes.map(async (recipe) => {
+          const expiresIn = SUPABASE_CACHE_EXPIRATION;
+          const images = await Promise.all(
+            (recipe.images ?? []).map((i) => this.supaClient.getSignedUrl(i, expiresIn)),
+          );
+          console.log('Supabase images url created', recipe.en.title, images, expiresIn);
+          return {
+            ...recipe,
+            images,
+          };
+        }),
       );
       return recipes;
     } catch (error) {

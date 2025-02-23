@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cachedRecipeById } from '~/core/cache';
+import { firebaseDb } from '../../_services/firebase';
 
 interface RouteProps {
   params: Promise<{ id: string }>;
@@ -8,7 +8,8 @@ interface RouteProps {
 export async function GET(request: NextRequest, { params }: RouteProps) {
   const { id } = await params;
   try {
-    const recipe = await cachedRecipeById(id);
+    const recipe = await firebaseDb.getRecipe(id);
+    console.log("Firebase and Supabase recipe fetched", id);
     return NextResponse.json(recipe);
   } catch (error) {
     console.error(`Retrieval recipes id <${id}> failed:`, error);
