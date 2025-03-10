@@ -6,9 +6,9 @@ import { getRedisClient } from './redis';
 export const cachedRecipes = cache(() => firebaseDb.getAllRecipes());
 export const cachedRecipeById = cache((id: string) => firebaseDb.getRecipe(id));
 
-export const REDIS_CACHE_EXPIRATION = 3600 // in seconds
-export const NEXTJS_CACHE_EXPIRATION = 1800 // in seconds
-export const SUPABASE_CACHE_EXPIRATION = 7200 // in seconds
+export const REDIS_CACHE_EXPIRATION = Number(process.env.REDIS_CACHE_EXPIRATION) // in seconds
+export const NEXTJS_CACHE_EXPIRATION = Number(process.env.NEXTJS_CACHE_EXPIRATION) // in seconds
+export const SUPABASE_CACHE_EXPIRATION = Number(process.env.SUPABASE_CACHE_EXPIRATION)  // in seconds
 
 export const cachedRedisFetch = async <T = unknown>(key: string, fetchFn: () => Promise<T>, ttl = REDIS_CACHE_EXPIRATION) => {
   const redis = await getRedisClient();
