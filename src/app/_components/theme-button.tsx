@@ -25,9 +25,9 @@ const ThemeButton = memo(function ThemeButtonComponent() {
   return (
     <NavButton
       onClick={toggleTheme}
-      text="Toggle theme"
       icon={isDark ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
       active={isDark}
+      tooltip="Toggle theme"
       iconClassName="w-4 h-4"
     />
   );

@@ -1,23 +1,20 @@
-import { memo, ReactNode } from 'react';
+import { memo, ReactNode, ButtonHTMLAttributes, MouseEventHandler } from 'react';
 import cn from 'classnames';
 import Link from 'next/link';
 
-type NavButtonProps = {
+type NavButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   to?: string;
-  type?: 'button' | 'submit';
   icon?: ReactNode;
   text?: string;
-  onClick?: () => void;
   className?: string;
   iconClassName?: string;
   active?: boolean;
-  disabled?: boolean;
   tooltip?: string;
 };
 
 const NavButton = ({
   to,
-  type,
+  type = 'button',
   icon,
   text,
   onClick,
@@ -40,7 +37,9 @@ const NavButton = ({
         !active && !disabled,
       'text-slate-600 dark:text-amber-300 border-slate-200 dark:border-amber-300/30 hover:border-slate-400 dark:hover:border-amber-300/60 bg-gray-200/30 dark:bg-gray-700/30':
         active,
-      'opacity-50 cursor-not-allowed': disabled,
+      'opacity-50 cursor-not-allowed pointer-events-none select-none': disabled,
+      'text-gray-400 border-gray-400/20 bg-gray-200/20 dark:text-gray-500 dark:border-gray-500/20 dark:bg-gray-700/20':
+        disabled,
     },
     customClass,
   );
@@ -50,7 +49,7 @@ const NavButton = ({
       {text && <span className="sr-only">{text}</span>}
       {icon && <span className={cn('flex items-center justify-center w-4 h-4', iconClassName)}>{icon}</span>}
       {tooltip && (
-        <span className="absolute top-full mt-2 px-2 py-1 text-sm text-white bg-black rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 font-sans">
+        <span className="absolute top-full mt-2 px-2 py-1 text-sm text-white bg-black rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 font-sans truncate">
           {tooltip}
         </span>
       )}
@@ -62,7 +61,7 @@ const NavButton = ({
       <Link
         href={to}
         className={cn(baseClass, 'group', { 'pointer-events-none': disabled })}
-        onClick={onClick}
+        onClick={onClick as unknown as MouseEventHandler<HTMLAnchorElement>}
         aria-disabled={disabled}
       >
         {content}
