@@ -1,9 +1,85 @@
 import OpenAI from 'openai';
-import Anthropic from '@anthropic-ai/sdk';
-import type { ChatCompletionMessageParam } from 'openai/resources/index';
+import type {
+  ChatCompletion,
+  ChatCompletionMessage,
+  ChatCompletionMessageParam,
+  ChatCompletionTool,
+  ResponseFormatJSONObject,
+  ResponseFormatJSONSchema,
+  ResponseFormatText,
+} from 'openai/resources/index';
 
-export type LLMResponse = {
-  content: string;
+/** family and models */
+
+export enum ModelFamily {
+  DEEPSEEK = 'deepseek',
+  ANTHROPIC = 'anthropic',
+  OPENAI = 'openai',
+}
+
+export enum DeepseekModel {
+  CHAT = 'deepseek-chat',
+  REASONER = 'deepseek-r1',
+}
+
+export enum AnthropicModel {
+  SONNET = 'claude-3.5-sonnet',
+  OPUS = 'claude-3-opus',
+  HAIKU = 'claude-3.5-haiku',
+}
+
+export enum OpenAIModel {
+  GPT_4O_MINI = 'gpt-4o-mini',
+  O3_MINI = 'o3-mini',
+}
+
+export type Model = DeepseekModel | AnthropicModel | OpenAIModel;
+
+/** tools */
+
+async function count(input: { text: string }): Promise<{ length: number }> {
+  return { length: input.text.length };
+}
+
+export const TOOL_COMPLETION_REQUEST = {
+  count: {
+    type: 'function',
+    function: {
+      name: 'count',
+      description: 'Count the number of characters in a given text string',
+      parameters: {
+        type: 'object',
+        properties: {
+          text: {
+            type: 'string',
+            description: 'The text string to count characters for',
+          },
+        },
+        required: ['text'],
+      },
+    },
+  } as ChatCompletionTool,
+};
+
+const TOOL_COMPLETION_RESPONSE = {
+  count,
+};
+
+/** type and interface */
+
+export type LLMRequest = {
+  messages: ChatCompletionMessageParam[];
+  family: ModelFamily;
+  model: Model;
+  temperature?: number;
+  max_tokens?: number;
+  stream?: false | null | undefined;
+  response_format?: ResponseFormatText | ResponseFormatJSONObject | ResponseFormatJSONSchema;
+  tools?: ChatCompletionTool[];
+};
+
+export type LLMResponse<T> = {
+  content: T;
   model: string;
   usage: {
     prompt_tokens: number;
@@ -11,80 +87,87 @@ export type LLMResponse = {
   };
 };
 
-export enum DeepseekModel {
-  CHAT = 'deepseek/deepseek-chat',
-  REASONER = 'deepseek/deepseek-reasoner',
-}
-
-export enum AnthropicModel {
-  SONNET = 'claude-3-5-sonnet-20241022',
-  OPUS = 'claude-3-opus-20240229',
-}
-
-export enum OpenAIModel {
-  GPT_4O_MINI = 'openai/gpt-4o-mini',
-  O3_MINI = 'openai/o3-mini',
-}
-
-export type LLMRequest = {
-  messages: ChatCompletionMessageParam[];
-  model: DeepseekModel | AnthropicModel;
-  temperature?: number;
-  max_tokens?: number;
+const DEFAULT_USAGE = {
+  prompt_tokens: 0,
+  completion_tokens: 0,
+  total_tokens: 0,
 };
 
 export class LLMClient {
-  private readonly openaiClient: OpenAI;
-  private readonly anthropicClient: Anthropic;
+  private readonly openRouterClient: OpenAI;
 
-  constructor() {
-    this.openaiClient = new OpenAI({
-      baseURL: 'https://openrouter.ai/api/v1',
+  constructor(
+    private readonly CONFIG = {
+      baseURL: 'https://openrouter.ai/api/v1' as const,
       apiKey: process.env.OPEN_ROUTER_API_KEY,
-    });
-
-    this.anthropicClient = new Anthropic();
+    },
+  ) {
+    this.openRouterClient = new OpenAI(this.CONFIG);
   }
 
-  async generate(payload: LLMRequest): Promise<LLMResponse> {
-    const { messages, model, temperature = 0.0, max_tokens = 4096 } = payload;
+  async processLlm<T = string>(
+    payload: LLMRequest,
+  ): Promise<LLMResponse<T> | /*AsyncIterable<LLMResponse<T>>*/ { content: T }> {
+    const { family, model, tools, response_format } = payload;
 
-    const provider = this.getProviderForModel(model);
-    if (provider === 'open-router') {
-      return this.callOpenRouter(messages, model, temperature, max_tokens);
-    } else if (provider === 'anthropic') {
-      return this.callAnthropic(messages, model, temperature, max_tokens);
-    } else {
-      throw new Error('Invalid model specified');
+    if (!family || !model) {
+      throw new Error('Family and model are required');
     }
+
+    const createOption = this.createLlmOptions(payload);
+    const completion = await this.openRouterClient.chat.completions.create(createOption);
+
+    return this.handleNonStreamingResponse<T>(completion, !!tools, !!response_format);
+
+    /** @todo Handle streaming response 
+     * 
+     * if (stream) return this.handleStreamingResponse<T>(completion);
+    */
+      
   }
 
-  private getProviderForModel(model: string): 'anthropic' | 'open-router' {
-    if (model.includes('/')) {
-      return 'open-router';
-    } else if (model.startsWith('claude-')) {
-      return 'anthropic';
-    } else {
-      throw new Error('Unsupported model');
-    }
-  }
-
-  private async callOpenRouter(
-    messages: ChatCompletionMessageParam[],
-    model: LLMRequest['model'],
-    temperature: number,
-    max_tokens: number,
-  ): Promise<LLMResponse> {
-    const completion = await this.openaiClient.chat.completions.create({
+  private createLlmOptions(payload: LLMRequest) {
+    const { messages, family, model, temperature = 0.0, max_tokens = 4096, stream, response_format, tools } = payload;
+    return {
       messages,
-      model,
+      model: `${family}/${model}`,
       temperature,
       max_tokens,
-      // response_format: {
-      //   type: 'text', // "json_object"
-      // },
-    });
+      stream,
+      response_format,
+      tools,
+    };
+  }
 
+  private handleNonStreamingResponse<T>(
+    completion: ChatCompletion,
+    hasTools: boolean,
+    hasStructOutput: boolean,
+  ): LLMResponse<T> | Promise<LLMResponse<T>> {
+    const responseHandler = hasTools ? this.handleLlmResponseWithTool : this.handleLlmResponseWithoutTool;
+    return responseHandler<T>(completion, hasStructOutput);
+  }
+
+  /*
+  private async *handleStreamingResponse<T>(completion: AsyncIterable<any>): AsyncIterable<LLMResponse<T>> {
+    for await (const chunk of completion) {
+      const [choice] = chunk.choices;
+      if (choice?.delta?.content) {
+        yield {
+          content: choice.delta.content as T,
+          model: chunk.model,
+          usage: chunk.usage || DEFAULT_USAGE,
+        };
+      }
+    }
+  }
+  */
+
+  private handleLlmResponseWithoutTool<T>(completion: ChatCompletion, hasStructOutput: boolean): LLMResponse<T> {
+    // Validate completion.choices
+    if (!completion.choices || !Array.isArray(completion.choices) || completion.choices.length === 0) {
+      throw new Error('Invalid response: No choices available');
+    }
     const [choice] = completion.choices;
     if (!choice?.message?.content) {
       throw new Error('No content in response');
@@ -92,39 +175,83 @@ export class LLMClient {
 
     console.log('Model content', choice.message.content);
     return {
-      content: choice.message.content,
+      content: (!hasStructOutput ? choice.message.content : JSON.parse(choice.message.content)) as T,
       model: completion.model,
-      usage: completion.usage || {
-        prompt_tokens: 0,
-        completion_tokens: 0,
-        total_tokens: 0,
-      },
+      usage: completion.usage || DEFAULT_USAGE,
     };
   }
 
-  private async callAnthropic(
-    messages: ChatCompletionMessageParam[],
-    model: LLMRequest['model'],
-    temperature: number,
-    max_tokens: number,
-  ): Promise<LLMResponse> {
-    const system = messages.find(({ role }) => role === 'system')?.content as string | undefined;
-    const msg = await this.anthropicClient.messages.create({
-      system,
-      model,
-      max_tokens,
-      temperature,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      messages: messages.filter(({ role }) => role !== 'system') as any,
-    });
-    if (!('text' in msg.content[0])) throw new Error(`Anthropic API Error: No text response`);
+  private async handleLlmResponseWithTool<T>(completion: ChatCompletion): Promise<LLMResponse<T>> {
+    // Validate completion.choices
+    if (!completion.choices || !Array.isArray(completion.choices) || completion.choices.length === 0) {
+      throw new Error('Invalid response: No choices available');
+    }
+    const [choice] = completion.choices;
+    if (!choice?.message?.tool_calls) {
+      throw new Error('No tool calls in response');
+    }
+
+    // Process the tool call
+    const toolResponse = await this.getToolResponse<T>(choice.message);
+
+    console.log('Tool response', toolResponse.content);
     return {
-      content: msg.content[0].text,
-      model: msg.model,
-      usage: {
-        prompt_tokens: msg.usage.input_tokens,
-        completion_tokens: msg.usage.output_tokens,
-      },
+      content: toolResponse.content,
+      model: completion.model,
+      usage: completion.usage || DEFAULT_USAGE,
+    };
+  }
+
+  private async getToolResponse<Response>(
+    response: ChatCompletionMessage,
+  ): Promise<{ role: 'tool'; toolCallId: string; name: string; content: Response }> {
+    const [toolCall] = response.tool_calls || [];
+    const toolName = toolCall.function.name;
+    const toolArgs = JSON.parse(toolCall.function.arguments);
+
+    const toolFunction = TOOL_COMPLETION_RESPONSE[toolName as keyof typeof TOOL_COMPLETION_RESPONSE];
+    if (!toolFunction) {
+      throw new Error(`Tool function ${toolName} not found`);
+    }
+    const toolResult = await toolFunction(toolArgs);
+
+    return {
+      role: 'tool',
+      toolCallId: toolCall.id,
+      name: toolName,
+      content: toolResult as Response,
     };
   }
 }
+
+/**
+ * Examples
+ * 
+ * 1. Non-Streaming with Tools
+  const llmClient = new LlmClient(openRouterClient);
+  const payload: LLMRequest = {
+    messages: [{ role: 'user', content: 'Search for books about TypeScript' }],
+    family: 'openai',
+    model: 'gpt-4o-mini',
+    temperature: 0.7,
+    tools: [{ type: 'function', function: { name: 'searchGutenbergBooks', description: 'Search for books' } }],
+  };
+
+  const response = await llmClient.processLlm(payload);
+  console.log(response.content); // Output: Array of books about TypeScript
+
+  * 2. Streaming without Tools
+  const llmClient = new LlmClient(openRouterClient);
+  const payload: LLMRequest = {
+    messages: [{ role: 'user', content: 'Hello, world!' }],
+    family: 'openai',
+    model: 'gpt-4o-mini',
+    temperature: 0.7,
+    stream: true,
+  };
+
+  const streamResponse = await llmClient.processLlm(payload);
+  for await (const chunk of streamResponse) {
+    console.log(chunk.content); // Outputs incremental content as it arrives
+  }
+ */

@@ -1,7 +1,7 @@
 'use client';
 
 import { Cuisine } from '~/core/type';
-import { AnthropicModel, DeepseekModel, LLMRequest, OpenAIModel } from '~/app/api/_services/llm-client';
+import { AnthropicModel, DeepseekModel, ModelFamily, OpenAIModel } from '~/app/api/_services/llm-client';
 import { useForm } from 'react-hook-form';
 import View from './_components';
 import useLanguage from '~/core/use-language';
@@ -14,7 +14,7 @@ type FormValues = {
   dishName?: string;
   cuisine?: Cuisine;
   count?: number;
-  model: LLMRequest['model'];
+  model: string;
 };
 
 export default function GeneratePage() {
@@ -74,11 +74,16 @@ export default function GeneratePage() {
       <select
         className="bg-white/80 dark:bg-slate-800/50 rounded-lg px-3 py-2 text-sm sm:text-base text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 backdrop-blur-sm w-full sm:w-auto"
         value={model}
-        onChange={(e) => setModel(e.target.value as LLMRequest['model'])}
+        onChange={(e) => setModel(e.target.value as string)}
       >
-        {[...Object.values(OpenAIModel), ...Object.values(AnthropicModel), ...Object.values(DeepseekModel)].map((m) => (
+        {[
+          ...Object.values(OpenAIModel).map((m) => `${ModelFamily.OPENAI}/${m}`),
+          ...Object.values(AnthropicModel).map((m) => `${ModelFamily.ANTHROPIC}/${m}`),
+          ...Object.values(DeepseekModel).map((m) => `${ModelFamily.DEEPSEEK}/${m}`),
+          ,
+        ].map((m) => (
           <option key={m} value={m}>
-            {!m.includes('/') ? `anthropic/${m}` : m}
+            {m}
           </option>
         ))}
       </select>

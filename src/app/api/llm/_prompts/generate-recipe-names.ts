@@ -1,3 +1,4 @@
+import { ResponseFormatJSONSchema } from 'openai/resources/index';
 import { Cuisine } from '~/core/type';
 
 export default function generateRecipeNames(
@@ -5,7 +6,7 @@ export default function generateRecipeNames(
   length: number = 1,
   category: string = 'unspecified',
   randomnessFactor: number = Math.random(),
-): [string, string, string | undefined, string] {
+): [string, string, string | undefined, ResponseFormatJSONSchema, string] {
   return [
     `You are a culinary exploration engine. Generate diverse, authentic recipe names from global cuisines with unpredictable selection. Prioritize lesser-known regional dishes and avoid common suggestions. Maintain 30% unpredictability in selections.`,
     `Generate ${length} recipe names from these cuisines: ${cuisines.join(', ')}. Category of recipe is ${category}.
@@ -19,11 +20,27 @@ Requirements:
 - Generate total ${length} recipe name(s)
 
 Randomness factor: ${randomnessFactor}. Which means you will create 10000 recipe names in your mind and then you will pick several ones based on given randomness factor, and trim down to only ${length} again as output
-
-The output MUST be a single line stringified JSON array that can be parsed by JSON.parse(). Do not include any markdown, code blocks, or explanations.
-For example: 
-["Adana Kebap with Sumac Onions", "Bánh Khọt Coconut Mini Pancakes", "Sakura Mochi Bentō", "Picanha na Churrasqueira"]`,
+`,
     undefined,
-    '02-08-2025',
+    {
+      type: 'json_schema',
+      json_schema: {
+        name: 'recipe-names',
+        strict: true,
+        schema: {
+          type: 'array',
+          items: {
+            type: 'string',
+            description: 'A unique recipe name',
+            minLength: 1,
+            maxLength: 40,
+          },
+          minItems: 1,
+          maxItems: length,
+          additionalItems: false,
+        },
+      },
+    },
+    '05-11-2025',
   ];
 }

@@ -148,7 +148,7 @@ export const DishItem = memo(function DishCard({ recipeRaw }: { recipeRaw: DbRec
                   }
                 `}
             >
-              {difficultyTranslations[recipe.difficulty][language]}
+              {difficultyTranslations[recipe.difficulty]?.[language]}
             </span>
             <div className="flex gap-4">
               {[

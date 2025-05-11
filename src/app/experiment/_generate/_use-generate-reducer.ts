@@ -1,9 +1,9 @@
 import { useReducer } from 'react';
-import { DeepseekModel, LLMRequest } from '~/app/api/_services/llm-client';
+import { DeepseekModel, ModelFamily } from '~/app/api/_services/llm-client';
 import { DbRecipe } from '~/core/type';
 
 type State = {
-  model: LLMRequest['model'];
+  model: string;
   step: number;
   generatedNames: string[];
   selectedName: string;
@@ -16,7 +16,7 @@ type State = {
 };
 
 type Action =
-  | { type: 'SET_MODEL'; payload: LLMRequest['model'] }
+  | { type: 'SET_MODEL'; payload: string }
   | { type: 'SET_STEP'; payload: number }
   | { type: 'SET_GENERATED_NAMES'; payload: string[] }
   | { type: 'SET_SELECTED_NAME'; payload: string }
@@ -61,12 +61,12 @@ export function useGenerateReducer(): [
     setStep: (step: 1 | 2) => void;
     setGeneratedNames: (names: string[]) => void;
     addRecipe: (recipe: DbRecipe) => void;
-    setModel: (model: LLMRequest['model']) => void;
+    setModel: (model: string) => void;
     setSelectedName: (name: string) => void;
   },
 ] {
   const [state, dispatch] = useReducer(generateReducer, {
-    model: DeepseekModel.CHAT,
+    model: `${ModelFamily.DEEPSEEK}/${DeepseekModel.CHAT}`,
     step: 1,
     generatedNames: [],
     selectedName: '',
@@ -84,7 +84,7 @@ export function useGenerateReducer(): [
   const setGeneratedNames = (names: string[]) => dispatch({ type: 'SET_GENERATED_NAMES', payload: names });
   const addRecipe = (recipe: DbRecipe) => dispatch({ type: 'ADD_RECIPE', payload: recipe });
 
-  const setModel = (model: LLMRequest['model']) => dispatch({ type: 'SET_MODEL', payload: model });
+  const setModel = (model: string) => dispatch({ type: 'SET_MODEL', payload: model });
   const setSelectedName = (name: string) => dispatch({ type: 'SET_SELECTED_NAME', payload: name });
 
   return [

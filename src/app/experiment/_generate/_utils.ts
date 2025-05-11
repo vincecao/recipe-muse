@@ -2,20 +2,20 @@
 
 import axios from 'axios';
 import { cache } from 'react';
-import { LLMRequest } from '~/app/api/_services/llm-client';
 import { RecipeProgressEvent } from '~/app/api/llm/recipe/route';
 import { Cuisine, DbRecipe } from '~/core/type';
 
 const PRESET_RECIPE_NAMES: string[] = [];
 const PRESET_RECIPE: DbRecipe | undefined = undefined;
 
-export const generateRecipeNames = cache(async (length: number, cuisines: Cuisine[], model: LLMRequest['model']) => {
+export const generateRecipeNames = cache(async (length: number, cuisines: Cuisine[], rawModel: string) => {
   if (PRESET_RECIPE_NAMES.length) return PRESET_RECIPE_NAMES;
 
   try {
     const url = `/api/llm/recipe-names`;
+    const [family, model] = rawModel.split('/');
     const { data } = await axios.get<string[]>(url, {
-      params: { length, cuisines: JSON.stringify(cuisines), model },
+      params: { length, cuisines: JSON.stringify(cuisines), family, model },
     });
     return data;
   } catch (error) {
@@ -25,15 +25,17 @@ export const generateRecipeNames = cache(async (length: number, cuisines: Cuisin
 
 export const generateRecipe = async (
   name: string,
-  model: LLMRequest['model'],
+  rawModel: string,
   onProgress: (payload: { message: string | undefined; value: number }) => void,
 ) => {
   if (!!PRESET_RECIPE) return PRESET_RECIPE;
   try {
-    // First, get the task ID
-    const taskResponse = await axios.get<{ taskId: string }>(`/api/llm/recipe`, {
-      params: { name, model },
+    const url = `/api/llm/recipe`;
+    const [family, model] = rawModel.split('/');
+    const taskResponse = await axios.get<{ taskId: string }>(url, {
+      params: { name, family, model },
     });
+    // First, get the task ID
     const { taskId } = taskResponse.data;
 
     // Setup SSE connection for progress updates

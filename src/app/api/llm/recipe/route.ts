@@ -48,6 +48,7 @@ export type RecipeProgressEvent = {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name');
+  const family = searchParams.get('family') as LLMRequest['family'];
   const model = searchParams.get('model') as LLMRequest['model'];
   const taskId = searchParams.get('taskId');
 
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
 
   // Original GET handler with progress support
   try {
-    if (!name || !model) {
+    if (!name || !model || !family) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
 
@@ -104,7 +105,7 @@ export async function GET(request: NextRequest) {
     const taskId = uuidv4();
 
     // Start generation in background, callback task progress
-    generateRecipeByName(name, model, async (event: RecipeProgressEvent) => {
+    generateRecipeByName(name, family, model, async (event: RecipeProgressEvent) => {
       await redis.publish(taskId, JSON.stringify(event));
     });
 
@@ -117,6 +118,7 @@ export async function GET(request: NextRequest) {
 
 const generateRecipeByName = async (
   name: string,
+  family: LLMRequest['family'],
   model: LLMRequest['model'],
   onProgress?: (event: RecipeProgressEvent) => void,
 ) => {
@@ -198,16 +200,18 @@ const generateRecipeByName = async (
 
   const generateTranslatedRecipe = async (r: Partial<Recipe>, lang: Lang) => {
     console.log(`Translating en recipe to ${lang}(${LANGUAGE_MAPPING[lang]}):`, name);
-    const [system, user, , translatorVer] = translate(r, LANGUAGE_MAPPING[lang]);
+    const [system, user, , responseFormat, translatorVer] = translate(r, LANGUAGE_MAPPING[lang]);
     version.translator = translatorVer;
-    const response = await llmClient.generate({
+    const response = await llmClient.processLlm<Omit<Recipe, 'id'>>({
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: user },
       ],
       model,
+      family,
+      response_format: responseFormat,
     });
-    return JSON.parse(response.content) as Omit<Recipe, 'id'>;
+    return response.content;
   };
 
   const generateMultiTranslatedRecipes = async (r: Omit<Recipe, 'id'>, langs: Lang[]) => {
@@ -277,16 +281,18 @@ const generateRecipeByName = async (
     const generateEnRecipe = async () => {
       // If not found, generate new recipe
       console.log('Generating new en recipe:', name);
-      const [system, user, , recipeVer] = generate(name);
+      const [system, user, , responseFormat, recipeVer] = generate(name);
       version.recipe = recipeVer;
-      const response = await llmClient.generate({
+      const response = await llmClient.processLlm<Omit<Recipe, 'id'>>({
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },
         ],
         model,
+        family,
+        response_format: responseFormat,
       });
-      return JSON.parse(response.content) as Omit<Recipe, 'id'>;
+      return response.content;
     };
 
     sendProgress('Generating English Recipe', 30);

@@ -105,7 +105,7 @@ export const DishHeroDetail = memo(function DishHeroDetail({ recipeRaw }: { reci
                 },
               )}
             >
-              {difficultyTranslations[recipe.difficulty][language]} {t.level}
+              {difficultyTranslations[recipe.difficulty]?.[language]} {t.level}
             </span>
           </div>
         </div>

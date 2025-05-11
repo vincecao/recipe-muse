@@ -310,7 +310,7 @@ export const RecipeDetail = memo(function DishDetail({
                     : ''
                 }`}
               >
-                {difficultyTranslations[recipe.difficulty][language]} {t.difficultyLevel}
+                {difficultyTranslations[recipe.difficulty]?.[language]} {t.difficultyLevel}
               </span>
             </div>
 
