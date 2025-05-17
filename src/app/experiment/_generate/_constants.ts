@@ -1,4 +1,4 @@
-import { Cuisine } from "~/core/type";
+import { Cuisine } from "~/types/recipe";
 
 export const TRANSLATIONS = {
   en: {

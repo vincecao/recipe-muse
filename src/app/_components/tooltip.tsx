@@ -13,8 +13,6 @@ export default function Tooltip({ children, content, placement = 'bottom' }: Too
 
   useEffect(() => {
     if (containerRef.current && content) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-
       let style = {};
       switch (placement) {
         case 'top':

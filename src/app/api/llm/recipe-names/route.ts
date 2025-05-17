@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { Cuisine } from '~/core/type';
+import { Cuisine } from '~/types/recipe';
 import { LLMClient, type LLMRequest } from '~/app/api/_services/llm-client';
 import generate from '../_prompts/generate-recipe-names';
 
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const cuisines: Cuisine[] = JSON.parse(cuisinesParam || '[]');
     const length = parseInt(lengthParam);
     const family = familyParam as LLMRequest['family'];
-    const model = modelParam as LLMRequest['model'];
+    const model = modelParam as unknown as LLMRequest['model'];
 
     // Generate names with validated parameters
     const names = await generateRecipeNames(cuisines, length, family, model);

@@ -1,4 +1,4 @@
-import { Recipe } from '~/core/type';
+import { Recipe } from '~/types/recipe';
 
 export default function generateRecipeImages(
   title: Recipe['title'],

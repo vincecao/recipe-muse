@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getDatabase, ref, get, set, remove, Database, update } from 'firebase/database';
-import type { DbRecipe } from '~/core/type';
+import type { DbRecipe } from '~/types/recipe';
 import { SupabaseStorageService } from './supabase-storage';
 import { SUPABASE_CACHE_EXPIRATION } from '~/core/cache';
 

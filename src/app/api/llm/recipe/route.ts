@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DbRecipe, Lang, Recipe } from '~/core/type';
+import { DbRecipe, Lang, Recipe } from '~/types/recipe';
 import { firebaseDb, normalizeRecipeName } from '~/app/api/_services/firebase';
 import { LLMClient, type LLMRequest } from '~/app/api/_services/llm-client';
 import { v4 as uuidv4 } from 'uuid';
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name');
   const family = searchParams.get('family') as LLMRequest['family'];
-  const model = searchParams.get('model') as LLMRequest['model'];
+  const model = searchParams.get('model') as unknown as LLMRequest['model'];
   const taskId = searchParams.get('taskId');
 
   // Handle SSE connections for progress updates

@@ -2,7 +2,7 @@
 
 import { DishItem, DishLayout, MenuContent } from '~/app/menu/_components/menu';
 import { RecipeDetail } from '~/app/menu/recipe/[id]/_components/detail';
-import { DbRecipe } from '~/core/type';
+import { DbRecipe } from '~/types/recipe';
 import useLanguage from '~/core/use-language';
 import { useState } from 'react';
 

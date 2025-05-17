@@ -4,7 +4,7 @@ import { memo, PropsWithChildren } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
 import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
-import { categoryTranslations, DbRecipe, difficultyTranslations, Dish } from '~/core/type';
+import { categoryTranslations, DbRecipe, difficultyTranslations, Dish } from '~/types/recipe';
 import useLanguage from '~/core/use-language';
 import Image from 'next/image';
 

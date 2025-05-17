@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import useLanguage from '~/core/use-language';
-import { Lang } from '~/core/type';
+import { Lang } from '~/types/recipe';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import cn from 'classnames';
 

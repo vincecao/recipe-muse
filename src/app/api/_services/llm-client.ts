@@ -4,44 +4,42 @@ import type {
   ChatCompletionMessage,
   ChatCompletionMessageParam,
   ChatCompletionTool,
+  Model,
   ResponseFormatJSONObject,
   ResponseFormatJSONSchema,
   ResponseFormatText,
 } from 'openai/resources/index';
-
-/** family and models */
-
-export enum ModelFamily {
-  DEEPSEEK = 'deepseek',
-  ANTHROPIC = 'anthropic',
-  OPENAI = 'openai',
-}
-
-export enum DeepseekModel {
-  CHAT = 'deepseek-chat',
-  REASONER = 'deepseek-r1',
-}
-
-export enum AnthropicModel {
-  SONNET = 'claude-3.5-sonnet',
-  OPUS = 'claude-3-opus',
-  HAIKU = 'claude-3.5-haiku',
-}
-
-export enum OpenAIModel {
-  GPT_4O_MINI = 'gpt-4o-mini',
-  O3_MINI = 'o3-mini',
-}
-
-export type Model = DeepseekModel | AnthropicModel | OpenAIModel;
+import { fetchRecipes } from '~/app/menu/_utils/data';
+import { ModelFamily } from '~/types/llm';
 
 /** tools */
-
 async function count(input: { text: string }): Promise<{ length: number }> {
   return { length: input.text.length };
 }
 
-export const TOOL_COMPLETION_REQUEST = {
+async function getMenuReference({ originalAnswer, queries }: { originalAnswer: string; queries: string[] }) {
+  const menuData = await fetchRecipes();
+  const lowerCaseQueries = queries.map((q) => q.toLowerCase());
+
+  const results = menuData.filter((item) => {
+    const lowerTitle = item.en.title.toLowerCase();
+    const lowerDescription = item.en.description.toLowerCase();
+
+    return lowerCaseQueries.some(
+      (query) =>
+        lowerTitle.includes(query) ||
+        lowerDescription.includes(query) ||
+        item.en.ingredients.some((ingredient) => ingredient.name.toLowerCase().includes(query)),
+    );
+  });
+
+  return {
+    message: originalAnswer,
+    recipes: results,
+  };
+}
+
+export const TOOL_COMPLETION_REQUEST: { [key in string]: ChatCompletionTool } = {
   count: {
     type: 'function',
     function: {
@@ -58,11 +56,37 @@ export const TOOL_COMPLETION_REQUEST = {
         required: ['text'],
       },
     },
-  } as ChatCompletionTool,
+  },
+  getMenuReference: {
+    type: 'function',
+    function: {
+      name: 'getMenuReference',
+      description:
+        'Search for menu items and return evidence from the menu data. Use this for any recipe or menu related queries.',
+      parameters: {
+        type: 'object',
+        properties: {
+          originalAnswer: {
+            type: 'string',
+            description: 'The original answer from llm.',
+          },
+          queries: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            description: 'The search queries for menu items. Should be a list of recipe ingredients to search for.',
+          },
+        },
+        required: ['originalAnswer', 'queries'],
+      },
+    },
+  },
 };
 
 const TOOL_COMPLETION_RESPONSE = {
   count,
+  getMenuReference,
 };
 
 /** type and interface */
@@ -119,11 +143,10 @@ export class LLMClient {
 
     return this.handleNonStreamingResponse<T>(completion, !!tools, !!response_format);
 
-    /** @todo Handle streaming response 
-     * 
+    /** @todo Handle streaming response
+     *
      * if (stream) return this.handleStreamingResponse<T>(completion);
-    */
-      
+     */
   }
 
   private createLlmOptions(payload: LLMRequest) {
@@ -164,7 +187,8 @@ export class LLMClient {
   */
 
   private handleLlmResponseWithoutTool<T>(completion: ChatCompletion, hasStructOutput: boolean): LLMResponse<T> {
-    // Validate completion.choices
+    console.log({ completion: JSON.stringify(completion, null, 2) });
+
     if (!completion.choices || !Array.isArray(completion.choices) || completion.choices.length === 0) {
       throw new Error('Invalid response: No choices available');
     }
@@ -182,46 +206,57 @@ export class LLMClient {
   }
 
   private async handleLlmResponseWithTool<T>(completion: ChatCompletion): Promise<LLMResponse<T>> {
-    // Validate completion.choices
+    console.log({ completion: JSON.stringify(completion, null, 2) });
+
     if (!completion.choices || !Array.isArray(completion.choices) || completion.choices.length === 0) {
       throw new Error('Invalid response: No choices available');
     }
+
     const [choice] = completion.choices;
-    if (!choice?.message?.tool_calls) {
-      throw new Error('No tool calls in response');
-    }
 
-    // Process the tool call
-    const toolResponse = await this.getToolResponse<T>(choice.message);
-
-    console.log('Tool response', toolResponse.content);
-    return {
-      content: toolResponse.content,
+    const rawResponse = {
+      content: { message: 'No tool is called. Please try again' } as T, // Cannot specify `response format` and `function` call at the same time
       model: completion.model,
       usage: completion.usage || DEFAULT_USAGE,
     };
-  }
 
-  private async getToolResponse<Response>(
-    response: ChatCompletionMessage,
-  ): Promise<{ role: 'tool'; toolCallId: string; name: string; content: Response }> {
-    const [toolCall] = response.tool_calls || [];
-    const toolName = toolCall.function.name;
-    const toolArgs = JSON.parse(toolCall.function.arguments);
-
-    const toolFunction = TOOL_COMPLETION_RESPONSE[toolName as keyof typeof TOOL_COMPLETION_RESPONSE];
-    if (!toolFunction) {
-      throw new Error(`Tool function ${toolName} not found`);
+    // Validate completion.choices
+    if (!choice.message.tool_calls?.[0]) {
+      console.log('No tool called');
+      return rawResponse;
     }
-    const toolResult = await toolFunction(toolArgs);
 
+    // Process the tool call
+    const toolResponse = await getToolResponse<Partial<T>>(choice.message);
     return {
-      role: 'tool',
-      toolCallId: toolCall.id,
-      name: toolName,
-      content: toolResult as Response,
+      ...rawResponse,
+      content: {
+        ...rawResponse.content,
+        ...toolResponse.content,
+      },
     };
   }
+}
+
+async function getToolResponse<Response>(
+  response: ChatCompletionMessage,
+): Promise<{ role: 'tool'; toolCallId: string; name: string; content: Response }> {
+  const [toolCall] = response.tool_calls || [];
+  const toolName = toolCall.function.name;
+  const toolArgs = JSON.parse(toolCall.function.arguments);
+
+  const toolFunction = TOOL_COMPLETION_RESPONSE[toolName as keyof typeof TOOL_COMPLETION_RESPONSE];
+  if (!toolFunction) {
+    throw new Error(`Tool function ${toolName} not found`);
+  }
+  const toolResult = await toolFunction(toolArgs);
+
+  return {
+    role: 'tool',
+    toolCallId: toolCall.id,
+    name: toolName,
+    content: toolResult as Response,
+  };
 }
 
 /**

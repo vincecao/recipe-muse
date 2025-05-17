@@ -1,6 +1,6 @@
 import { NEXTJS_CACHE_EXPIRATION, cachedRedisFetch } from '~/core/cache';
 import { withLocalCache } from '~/core/localCache.server';
-import { DbRecipe } from '~/core/type';
+import { DbRecipe } from '~/types/recipe';
 
 export async function fetchRecipes() {
   return withLocalCache<DbRecipe[]>('menu-data', async () => {

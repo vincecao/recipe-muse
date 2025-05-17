@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocalStorage } from '@mantine/hooks';
-import { Lang } from './type';
+import { Lang } from '../types/recipe';
 import { useEffect } from 'react';
 
 export default function useLanguage() {

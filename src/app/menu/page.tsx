@@ -1,4 +1,4 @@
-import { DbRecipe, Recipe } from '~/core/type';
+import { DbRecipe, Recipe } from '~/types/recipe';
 import { MenuLayout, MenuHeader, MenuContent, MenuFooter, DishItem, DishLayout, MenuSection } from './_components/menu';
 import Link from 'next/link';
 import { fetchRecipes } from './_utils/data';

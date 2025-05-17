@@ -1,13 +1,13 @@
 'use client';
 
-import { Cuisine } from '~/core/type';
-import { AnthropicModel, DeepseekModel, ModelFamily, OpenAIModel } from '~/app/api/_services/llm-client';
+import { Cuisine } from '~/types/recipe';
 import { useForm } from 'react-hook-form';
 import View from './_components';
 import useLanguage from '~/core/use-language';
 import { CUISINE_OPTIONS, TRANSLATIONS } from './_constants';
 import { generateRecipe, generateRecipeNames } from './_utils';
 import { useGenerateReducer } from './_use-generate-reducer';
+import { OpenAIModel, ModelFamily, AnthropicModel, DeepseekModel } from '~/types/llm';
 
 type FormValues = {
   generateType: 'manual' | 'generate';

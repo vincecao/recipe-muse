@@ -1,5 +1,5 @@
 import { ResponseFormatJSONSchema } from 'openai/resources/index';
-import { Recipe } from '~/core/type';
+import { Recipe } from '~/types/recipe';
 
 export default function translateRecipe(
   recipe: Partial<Recipe>,

@@ -12,7 +12,7 @@ import {
   FiShoppingBag,
   FiUsers,
 } from 'react-icons/fi';
-import { categoryTranslations, DbRecipe, difficultyTranslations, Lang, RecipeIngredient, RecipeInstruction } from '~/core/type';
+import { categoryTranslations, DbRecipe, difficultyTranslations, Lang, RecipeIngredient, RecipeInstruction } from '~/types/recipe';
 import cn from 'classnames';
 import useLanguage from '~/core/use-language';
 import Image from 'next/image';

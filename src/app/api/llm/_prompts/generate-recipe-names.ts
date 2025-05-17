@@ -1,5 +1,5 @@
 import { ResponseFormatJSONSchema } from 'openai/resources/index';
-import { Cuisine } from '~/core/type';
+import { Cuisine } from '~/types/recipe';
 
 export default function generateRecipeNames(
   cuisines: Cuisine[],
