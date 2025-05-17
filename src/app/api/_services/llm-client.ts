@@ -17,7 +17,7 @@ async function count(input: { text: string }): Promise<{ length: number }> {
   return { length: input.text.length };
 }
 
-async function getMenuReference({ originalAnswer, queries }: { originalAnswer: string; queries: string[] }) {
+async function getMenuReference({ message, queries }: { message: string; queries: string[] }) {
   const menuData = await fetchRecipes();
   const lowerCaseQueries = queries.map((q) => q.toLowerCase());
 
@@ -34,7 +34,7 @@ async function getMenuReference({ originalAnswer, queries }: { originalAnswer: s
   });
 
   return {
-    message: originalAnswer,
+    message,
     recipes: results,
   };
 }
@@ -66,9 +66,10 @@ export const TOOL_COMPLETION_REQUEST: { [key in string]: ChatCompletionTool } = 
       parameters: {
         type: 'object',
         properties: {
-          originalAnswer: {
+          message: {
             type: 'string',
-            description: 'The original answer from llm.',
+            description:
+              "The LLM-generated response message that directly answers the user's question, independent of the menu reference search results. This should be a complete, standalone answer that could be used even if no menu items are found.",
           },
           queries: {
             type: 'array',
@@ -78,7 +79,7 @@ export const TOOL_COMPLETION_REQUEST: { [key in string]: ChatCompletionTool } = 
             description: 'The search queries for menu items. Should be a list of recipe ingredients to search for.',
           },
         },
-        required: ['originalAnswer', 'queries'],
+        required: ['message', 'queries'],
       },
     },
   },
@@ -215,13 +216,13 @@ export class LLMClient {
     const [choice] = completion.choices;
 
     const rawResponse = {
-      content: { message: 'No tool is called. Please try again' } as T, // Cannot specify `response format` and `function` call at the same time
+      content: { message: choice.message.content || 'No content returned from either tool or llm' } as T, // Cannot specify `response format` and `function` call at the same time
       model: completion.model,
       usage: completion.usage || DEFAULT_USAGE,
     };
 
     // Validate completion.choices
-    if (!choice.message.tool_calls?.[0]) {
+    if (!choice.message.tool_calls?.at(-1)) {
       console.log('No tool called');
       return rawResponse;
     }
@@ -241,7 +242,7 @@ export class LLMClient {
 async function getToolResponse<Response>(
   response: ChatCompletionMessage,
 ): Promise<{ role: 'tool'; toolCallId: string; name: string; content: Response }> {
-  const [toolCall] = response.tool_calls || [];
+  const toolCall = response.tool_calls?.at(-1)!;
   const toolName = toolCall.function.name;
   const toolArgs = JSON.parse(toolCall.function.arguments);
 
