@@ -2,7 +2,8 @@
 
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
-import { getRedisClient } from '~/core/redis';
+import { clearLocalCache } from '~/core/localCache.server';
+import { getRedisClient } from '~/core/redis.server';
 
 export async function POST(request: NextRequest) {
   const { pathname } = await request.json();
@@ -29,6 +30,9 @@ export async function POST(request: NextRequest) {
     } else {
       console.log('No Redis Cache has been removed');
     }
+
+    clearLocalCache();
+    
     return NextResponse.json({ message: 'Cache cleared successfully' });
   } catch (error) {
     console.error('Redis and Nextjs Cache invalidation failed:', error);

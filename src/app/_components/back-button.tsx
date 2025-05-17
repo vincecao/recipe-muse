@@ -13,7 +13,7 @@ const BackButton = () => {
       onClick={() => router.back()}
       text="Back"
       icon={<FiArrowLeft className="w-4 h-4" />}
-      tooltip="Back"
+      tooltip={{ content: 'Back' }}
     />
   );
 };

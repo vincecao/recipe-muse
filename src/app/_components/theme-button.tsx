@@ -27,7 +27,7 @@ const ThemeButton = memo(function ThemeButtonComponent() {
       onClick={toggleTheme}
       icon={isDark ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
       active={isDark}
-      tooltip="Toggle theme"
+      tooltip={{ content: 'Toggle theme' }}
       iconClassName="w-4 h-4"
     />
   );

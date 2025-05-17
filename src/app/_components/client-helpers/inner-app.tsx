@@ -9,6 +9,7 @@ import LanguageButton from '../language-button';
 import ThemeButton from '../theme-button';
 import RefreshButton from '../refresh-button';
 import GenerateButton from '../generate-button';
+import ChatButton from '../chat-button';
 
 export default function InnerApp({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -27,16 +28,19 @@ export default function InnerApp({ children }: { children: React.ReactNode }) {
           Recipe Muse
         </Link>
       )}
-      <div className="fixed right-4 top-4 flex gap-2 z-20">
+      <div className="fixed right-4 md:right-6 top-4 flex gap-2 z-20">
         <LanguageButton />
         <ThemeButton />
         {showAboutUs && <AboutUsButton />}
       </div>
-      <div className="fixed left-4 top-4 flex gap-2 z-20">
+      <div className="fixed left-4 md:left-6 top-4 flex gap-2 z-20">
         {allowHome && <HomeButton />}
         {allowBack && <BackButton />}
         {allowRefresh && <RefreshButton />}
         <GenerateButton />
+      </div>
+      <div className="fixed right-4 md:right-6 bottom-4 flex gap-2 z-20">
+        <ChatButton />
       </div>
       <div className="fixed bottom-0 left-0 right-0 text-center py-4 text-sm text-gray-600 dark:text-gray-400 z-0">
         <a href="https://github.com/vincecao/recipe-muse" target="_black">

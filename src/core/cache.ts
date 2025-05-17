@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { firebaseDb } from "~/app/api/_services/firebase";
-import { getRedisClient } from './redis';
+import { getRedisClient } from './redis.server';
 
 /** @todo: Figure out cache from React */
 export const cachedRecipes = cache(() => firebaseDb.getAllRecipes());

@@ -1,7 +1,7 @@
 import { DbRecipe, Recipe } from '~/core/type';
 import { MenuLayout, MenuHeader, MenuContent, MenuFooter, DishItem, DishLayout, MenuSection } from './_components/menu';
 import Link from 'next/link';
-import { NEXTJS_CACHE_EXPIRATION, cachedRedisFetch } from '~/core/cache';
+import { fetchRecipes } from './_utils/data';
 
 const recipesByCategory = (recipes: DbRecipe[]) =>
   recipes.reduce((acc: Record<Recipe['category'], DbRecipe[]>, recipe: DbRecipe) => {
@@ -12,25 +12,6 @@ const recipesByCategory = (recipes: DbRecipe[]) =>
     acc[category].push(recipe);
     return acc;
   }, {} as Record<Recipe['category'], DbRecipe[]>);
-
-async function fetchRecipes() {
-  let recipes: DbRecipe[] = [];
-  try {
-    const res = await cachedRedisFetch<DbRecipe[]>('menu-data', async () => 
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/recipe`, {
-        next: { tags: ['menu'], revalidate: NEXTJS_CACHE_EXPIRATION },
-      }).then(r => r.json())
-    );
-
-    // Add runtime validation
-    if (!Array.isArray(res)) throw new Error('Invalid recipe data format');
-
-    recipes = res;
-  } catch (error) {
-    console.error(error);
-  }
-  return recipes;
-}
 
 export default async function MenuPage() {
   const recipes = await fetchRecipes();

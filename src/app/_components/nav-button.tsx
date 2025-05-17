@@ -1,6 +1,7 @@
 import { memo, ReactNode, ButtonHTMLAttributes, MouseEventHandler } from 'react';
 import cn from 'classnames';
 import Link from 'next/link';
+import Tooltip from './tooltip';
 
 type NavButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   to?: string;
@@ -9,7 +10,7 @@ type NavButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   className?: string;
   iconClassName?: string;
   active?: boolean;
-  tooltip?: string;
+  tooltip?: { content?: string; placement?: 'top' | 'bottom' | 'left' | 'right' };
 };
 
 const NavButton = ({
@@ -48,31 +49,30 @@ const NavButton = ({
     <>
       {text && <span className="sr-only">{text}</span>}
       {icon && <span className={cn('flex items-center justify-center w-4 h-4', iconClassName)}>{icon}</span>}
-      {tooltip && (
-        <span className="absolute top-full mt-2 px-2 py-1 text-sm text-white bg-black rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 font-sans truncate">
-          {tooltip}
-        </span>
-      )}
     </>
   );
 
   if (to) {
     return (
-      <Link
-        href={to}
-        className={cn(baseClass, 'group', { 'pointer-events-none': disabled })}
-        onClick={onClick as unknown as MouseEventHandler<HTMLAnchorElement>}
-        aria-disabled={disabled}
-      >
-        {content}
-      </Link>
+      <Tooltip {...tooltip}>
+        <Link
+          href={to}
+          className={cn(baseClass, 'group', { 'pointer-events-none': disabled })}
+          onClick={onClick as unknown as MouseEventHandler<HTMLAnchorElement>}
+          aria-disabled={disabled}
+        >
+          {content}
+        </Link>
+      </Tooltip>
     );
   }
 
   return (
-    <button type={type} className={cn(baseClass, 'group')} onClick={onClick} disabled={disabled}>
-      {content}
-    </button>
+    <Tooltip {...tooltip}>
+      <button type={type} className={cn(baseClass, 'group')} onClick={onClick} disabled={disabled}>
+        {content}
+      </button>
+    </Tooltip>
   );
 };
 

@@ -35,7 +35,7 @@ const RefreshButton = () => {
       text="Refresh"
       icon={<FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />}
       onClick={handleRefresh}
-      tooltip="Cache Free Refresh"
+      tooltip={{ content: 'Cache Free Refresh' }}
     />
   );
 };

@@ -9,7 +9,7 @@ import generate from '../_prompts/generate-recipe';
 import translate from '../_prompts/translate-recipe';
 import image from '../_prompts/generate-recipe-image';
 import sharp from 'sharp';
-import { getRedisClient } from '~/core/redis';
+import { getRedisClient } from '~/core/redis.server';
 
 const LANGUAGE_MAPPING: { [key in Lang]: string } = {
   en: 'English',
