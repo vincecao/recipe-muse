@@ -242,7 +242,10 @@ export class LLMClient {
 async function getToolResponse<Response>(
   response: ChatCompletionMessage,
 ): Promise<{ role: 'tool'; toolCallId: string; name: string; content: Response }> {
-  const toolCall = response.tool_calls?.at(-1)!;
+  const toolCall = response.tool_calls?.at(-1);
+  if (!toolCall) {
+    throw new Error('No tool call found in response');
+  }
   const toolName = toolCall.function.name;
   const toolArgs = JSON.parse(toolCall.function.arguments);
 
