@@ -1,10 +1,24 @@
 import { NextResponse } from 'next/server';
-import { firebaseDb } from '../_services/firebase';
+import { container } from '../../../infrastructure/config/dependency-injection';
+import { RecipeService } from '../../../presentation/services/recipe.service';
+
+// Initialize the DI container
+let isInitialized = false;
+
+async function ensureInitialized() {
+  if (!isInitialized) {
+    await container.initialize();
+    isInitialized = true;
+  }
+}
 
 export async function GET() {
   try {
-    const recipes = await firebaseDb.getAllRecipes();
-    console.log('Firebase and Supabase menu fetched');
+    await ensureInitialized();
+    
+    // Use the new clean architecture service for better performance and caching
+    const recipes = await RecipeService.getAllRecipesLegacy();
+    console.log('Recipes fetched via clean architecture');
     return NextResponse.json(recipes);
   } catch (error) {
     console.error('Retrieval all recipes failed:', error);

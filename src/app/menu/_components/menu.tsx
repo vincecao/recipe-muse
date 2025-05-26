@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, PropsWithChildren } from 'react';
+import { memo, PropsWithChildren, useMemo } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
 import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
@@ -104,7 +104,7 @@ export const DishLayout = memo(function DishCard({ children, bgImgSrc }: PropsWi
 
 export const DishItem = memo(function DishCard({ recipeRaw }: { recipeRaw: DbRecipe }) {
   const { language } = useLanguage();
-  const recipe = recipeRaw[language] ?? recipeRaw.en;
+  const recipe = useMemo(() => recipeRaw[language] ?? recipeRaw.en, [language, recipeRaw]);
   return (
     <div className="relative z-10 p-6">
       <div className="flex justify-between items-start gap-4">

@@ -1,5 +1,5 @@
 import { MenuLayout } from '../../_components/menu';
-import { fetchRecipe } from '../../_utils/data';
+import { DataFetcher } from '../../../../presentation/utils/data-fetcher';
 import { RecipeDetail } from './_components/detail';
 import { DishHero, DishHeroDetail } from './_components/dish-hero';
 
@@ -9,7 +9,9 @@ interface PageProps {
 
 export default async function RecipePage({ params }: PageProps) {
   const { id } = await params;
-  const recipe = await fetchRecipe(id);
+  
+  // Use the optimized SSR data fetcher
+  const recipe = await DataFetcher.fetchRecipeLegacySSR(id);
 
   if (!recipe) return null;
 
