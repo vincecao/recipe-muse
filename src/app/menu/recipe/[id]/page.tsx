@@ -1,29 +1,19 @@
-import { MenuLayout } from '../../_components/menu';
-import { DataFetcher } from '../../../../presentation/utils/data-fetcher';
-import { RecipeDetail } from './_components/detail';
-import { DishHero, DishHeroDetail } from './_components/dish-hero';
+import { RecipeDetailPage } from '~/presentation/pages/recipe-detail.page';
+import { notFound } from 'next/navigation';
+import { DataFetcher } from '~/presentation/utils/data-fetcher';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function RecipePage({ params }: PageProps) {
+export default async function RecipeRoute({ params }: PageProps) {
   const { id } = await params;
   
-  // Use the optimized SSR data fetcher
-  const recipe = await DataFetcher.fetchRecipeLegacySSR(id);
-
-  if (!recipe) return null;
-
-  const { images = [] } = recipe;
-
-  return (
-    <MenuLayout>
-      <DishHero heroImgSrc={images[0]}>
-        <DishHeroDetail recipeRaw={recipe} />
-      </DishHero>
-
-      <RecipeDetail recipeRaw={recipe} images={images} />
-    </MenuLayout>
-  );
+  const recipe = await DataFetcher.fetchRecipeSSR(id);
+  
+  if (!recipe) {
+    return notFound();
+  }
+  
+  return <RecipeDetailPage recipe={recipe} />;
 }

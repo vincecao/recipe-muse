@@ -1,16 +1,18 @@
 import { RecipeRepository } from '../../domain/repositories/recipe.repository';
 import { FirebaseRecipeRepository } from '../repositories/firebase-recipe.repository';
 import { CachedRecipeRepository } from '../repositories/cached-recipe.repository';
-import { CacheService, RedisCacheService, LocalCacheService } from '../cache/cache.service';
+import { ImageEnhancedRecipeRepository } from '../repositories/image-enhanced-recipe.repository';
+import { RecipeImageUrlService } from '../services/recipe-image-url.service';
+import { firebaseDb } from '../services/firebase.service';
+import { CacheInterface } from '../../domain/interfaces/cache.interface';
+import { RedisCacheService } from '../cache/redis-cache.service';
+import { LocalCacheService } from '../cache/local-cache.service';
+import { MultiCacheService } from '../cache/multi-cache.service';
 import { GetAllRecipesUseCase } from '../../application/use-cases/get-all-recipes.use-case';
 import { GetRecipeByIdUseCase } from '../../application/use-cases/get-recipe-by-id.use-case';
 import { GetRecipesByCategoryUseCase } from '../../application/use-cases/get-recipes-by-category.use-case';
 
-// Import existing services
-import { firebaseDb } from '../../app/api/_services/firebase';
-import { getRedisClient } from '../../core/redis.server';
-
-export class DIContainer {
+class DIContainer {
   private static instance: DIContainer;
   private services = new Map<string, unknown>();
 
@@ -24,33 +26,47 @@ export class DIContainer {
   }
 
   async initialize(): Promise<void> {
-    // Initialize cache service
-    let cacheService: CacheService;
-    try {
-      const redisClient = await getRedisClient();
-      cacheService = new RedisCacheService(redisClient);
-    } catch (error) {
-      console.warn('Redis not available, falling back to local cache:', error);
-      cacheService = new LocalCacheService();
-    }
+    // Initialize cache services with configuration
+    const REDIS_CACHE_EXPIRATION = Number(process.env.REDIS_CACHE_EXPIRATION) || 3600;
+
+    const redisConfig = {
+      defaultTtl: REDIS_CACHE_EXPIRATION,
+      enabled: true,
+    };
+
+    const localConfig = {
+      defaultTtl: REDIS_CACHE_EXPIRATION,
+      enabled: process.env.NODE_ENV === 'development',
+    };
+
+    // Create multi cache (local first, redis second)
+    const cacheService = new MultiCacheService([
+      new LocalCacheService(localConfig),
+      new RedisCacheService(redisConfig),
+    ]);
     this.services.set('cacheService', cacheService);
 
-    // Initialize repositories
-    const firebaseRepository = new FirebaseRecipeRepository(firebaseDb);
-    const cachedRepository = new CachedRecipeRepository(firebaseRepository, cacheService);
-    this.services.set('recipeRepository', cachedRepository);
+    // Initialize repositories with optional image URL enhancement
+    const recipesRepo = new ImageEnhancedRecipeRepository(
+      new FirebaseRecipeRepository(firebaseDb),
+      new RecipeImageUrlService(),
+    );
+
+    const withCachedRepo = new CachedRecipeRepository(recipesRepo, cacheService);
+
+    this.services.set('recipeRepository', withCachedRepo);
 
     // Initialize use cases
-    const getAllRecipesUseCase = new GetAllRecipesUseCase(cachedRepository);
-    const getRecipeByIdUseCase = new GetRecipeByIdUseCase(cachedRepository);
-    const getRecipesByCategoryUseCase = new GetRecipesByCategoryUseCase(cachedRepository);
+    const getAllRecipesUseCase = new GetAllRecipesUseCase(withCachedRepo);
+    const getRecipeByIdUseCase = new GetRecipeByIdUseCase(withCachedRepo);
+    const getRecipesByCategoryUseCase = new GetRecipesByCategoryUseCase(withCachedRepo);
 
     this.services.set('getAllRecipesUseCase', getAllRecipesUseCase);
     this.services.set('getRecipeByIdUseCase', getRecipeByIdUseCase);
     this.services.set('getRecipesByCategoryUseCase', getRecipesByCategoryUseCase);
   }
 
-  get<T>(serviceName: string): T {
+  private get<T>(serviceName: string): T {
     const service = this.services.get(serviceName);
     if (!service) {
       throw new Error(`Service ${serviceName} not found`);
@@ -63,8 +79,8 @@ export class DIContainer {
     return this.get<RecipeRepository>('recipeRepository');
   }
 
-  getCacheService(): CacheService {
-    return this.get<CacheService>('cacheService');
+  getCacheService(): CacheInterface {
+    return this.get<CacheInterface>('cacheService');
   }
 
   getGetAllRecipesUseCase(): GetAllRecipesUseCase {
@@ -81,4 +97,4 @@ export class DIContainer {
 }
 
 // Export singleton instance
-export const container = DIContainer.getInstance(); 
+export const container = DIContainer.getInstance();

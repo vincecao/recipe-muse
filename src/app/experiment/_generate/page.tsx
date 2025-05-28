@@ -1,13 +1,13 @@
 'use client';
 
-import { Cuisine } from '~/types/recipe';
+import { Cuisine } from '~/domain/entities/recipe.entity';
 import { useForm } from 'react-hook-form';
-import View from './_components';
-import useLanguage from '~/core/use-language';
+import View from '~/presentation/components/features/recipe-generator';
+import useLanguage from '~/presentation/hooks/use-language';
 import { CUISINE_OPTIONS, TRANSLATIONS } from './_constants';
 import { generateRecipe, generateRecipeNames } from './_utils';
 import { useGenerateReducer } from './_use-generate-reducer';
-import { OpenAIModel, ModelFamily, AnthropicModel, DeepseekModel } from '~/types/llm';
+import { OpenAIModel, ModelFamily, AnthropicModel, DeepseekModel } from '~/domain/entities/llm.entity';
 
 type FormValues = {
   generateType: 'manual' | 'generate';

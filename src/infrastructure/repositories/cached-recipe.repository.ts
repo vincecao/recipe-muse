@@ -1,6 +1,6 @@
 import { RecipeEntity, DbRecipe } from '../../domain/entities/recipe.entity';
 import { RecipeRepository } from '../../domain/repositories/recipe.repository';
-import { CacheService } from '../cache/cache.service';
+import { CacheInterface } from '../../domain/interfaces/cache.interface';
 
 export class CachedRecipeRepository implements RecipeRepository {
   private readonly CACHE_TTL = 3600; // 1 hour
@@ -8,7 +8,7 @@ export class CachedRecipeRepository implements RecipeRepository {
 
   constructor(
     private readonly repository: RecipeRepository,
-    private readonly cacheService: CacheService
+    private readonly cacheService: CacheInterface
   ) {}
 
   async findAll(): Promise<RecipeEntity[]> {
@@ -16,7 +16,7 @@ export class CachedRecipeRepository implements RecipeRepository {
     
     const cached = await this.cacheService.get<DbRecipe[]>(cacheKey);
     if (cached) {
-      return cached.map(data => RecipeEntity.fromDbRecipe(data));
+      return cached.map((data: DbRecipe) => RecipeEntity.fromDbRecipe(data));
     }
 
     const recipes = await this.repository.findAll();
@@ -58,47 +58,5 @@ export class CachedRecipeRepository implements RecipeRepository {
     // Invalidate related caches
     await this.cacheService.delete(`${this.CACHE_PREFIX}all`);
     await this.cacheService.delete(`${this.CACHE_PREFIX}id:${id}`);
-  }
-
-  async findByCategory(category: string): Promise<RecipeEntity[]> {
-    const cacheKey = `${this.CACHE_PREFIX}category:${category}`;
-    
-    const cached = await this.cacheService.get<DbRecipe[]>(cacheKey);
-    if (cached) {
-      return cached.map(data => RecipeEntity.fromDbRecipe(data));
-    }
-
-    const recipes = await this.repository.findByCategory(category);
-    await this.cacheService.set(cacheKey, recipes.map(r => r.toDbRecipe()), this.CACHE_TTL);
-    
-    return recipes;
-  }
-
-  async findByCuisine(cuisine: string): Promise<RecipeEntity[]> {
-    const cacheKey = `${this.CACHE_PREFIX}cuisine:${cuisine}`;
-    
-    const cached = await this.cacheService.get<DbRecipe[]>(cacheKey);
-    if (cached) {
-      return cached.map(data => RecipeEntity.fromDbRecipe(data));
-    }
-
-    const recipes = await this.repository.findByCuisine(cuisine);
-    await this.cacheService.set(cacheKey, recipes.map(r => r.toDbRecipe()), this.CACHE_TTL);
-    
-    return recipes;
-  }
-
-  async findByDifficulty(difficulty: string): Promise<RecipeEntity[]> {
-    const cacheKey = `${this.CACHE_PREFIX}difficulty:${difficulty}`;
-    
-    const cached = await this.cacheService.get<DbRecipe[]>(cacheKey);
-    if (cached) {
-      return cached.map(data => RecipeEntity.fromDbRecipe(data));
-    }
-
-    const recipes = await this.repository.findByDifficulty(difficulty);
-    await this.cacheService.set(cacheKey, recipes.map(r => r.toDbRecipe()), this.CACHE_TTL);
-    
-    return recipes;
   }
 } 

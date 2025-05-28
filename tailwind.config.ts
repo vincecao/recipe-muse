@@ -2,9 +2,8 @@ import type { Config } from 'tailwindcss';
 
 export default {
   content: [
-    './src/pages/**/*.{ts,tsx}',
-    './src/components/**/*.{ts,tsx}',
-    './src/core/**/*.{ts,tsx}',
+    './src/presentation/components/**/*.{ts,tsx}',
+    './src/presentation/pages/**/*.{ts,tsx}',
     './src/app/**/*.{ts,tsx}',
   ],
   darkMode: 'class',

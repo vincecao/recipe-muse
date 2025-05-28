@@ -2,8 +2,8 @@
 
 import axios from 'axios';
 import { cache } from 'react';
-import { RecipeProgressEvent } from '~/app/api/llm/recipe/route';
-import { Cuisine, DbRecipe } from '~/types/recipe';
+import { RecipeProgressEvent } from '~/application/use-cases/generate-recipe.use-case';
+import { Cuisine, DbRecipe } from '~/domain/entities/recipe.entity';
 
 const PRESET_RECIPE_NAMES: string[] = [];
 const PRESET_RECIPE: DbRecipe | undefined = undefined;

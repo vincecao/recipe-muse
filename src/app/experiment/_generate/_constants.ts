@@ -1,4 +1,4 @@
-import { Cuisine } from "~/types/recipe";
+import { Cuisine } from "~/domain/entities/recipe.entity";
 
 export const TRANSLATIONS = {
   en: {
