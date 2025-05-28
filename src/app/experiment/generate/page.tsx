@@ -271,7 +271,7 @@ export default function GeneratePage() {
       {modelSelectCtrl}
 
       <div className="relative">
-        {process.env.NODE_ENV !== 'production' && (
+        {process.env.NODE_ENV === 'production' && (
           <div className="absolute inset-0 bg-black/30 z-40 flex items-center justify-center rounded-xl">
             <div className="bg-white dark:bg-gray-900 p-4 rounded-xl text-center border border-gray-200 dark:border-gray-700 shadow-lg max-w-md mx-4">
               <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">Feature Unavailable</h3>
