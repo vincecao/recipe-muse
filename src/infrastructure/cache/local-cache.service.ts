@@ -9,7 +9,9 @@ export class LocalCacheService implements CacheInterface {
   constructor(config: CacheConfig) {
     this.config = config;
     this.cacheDir = path.join(process.cwd(), 'temp');
-    this.ensureCacheDir();
+    if (this.config.enabled) {
+      this.ensureCacheDir();
+    }
   }
 
   private ensureCacheDir(): void {
@@ -29,7 +31,7 @@ export class LocalCacheService implements CacheInterface {
     }
 
     const filePath = this.getCacheFilePath(key);
-    
+
     if (!fs.existsSync(filePath)) {
       return null;
     }
@@ -37,7 +39,7 @@ export class LocalCacheService implements CacheInterface {
     try {
       const fileContent = fs.readFileSync(filePath, 'utf-8');
       const cacheData = JSON.parse(fileContent);
-      
+
       // Check if cache has expired
       if (cacheData.expiresAt && Date.now() > cacheData.expiresAt) {
         await this.delete(key);
@@ -59,7 +61,7 @@ export class LocalCacheService implements CacheInterface {
 
     const filePath = this.getCacheFilePath(key);
     const expirationTime = ttl || this.config.defaultTtl;
-    const expiresAt = expirationTime > 0 ? Date.now() + (expirationTime * 1000) : null;
+    const expiresAt = expirationTime > 0 ? Date.now() + expirationTime * 1000 : null;
 
     const cacheData = {
       value,
@@ -81,7 +83,7 @@ export class LocalCacheService implements CacheInterface {
     }
 
     const filePath = this.getCacheFilePath(key);
-    
+
     if (fs.existsSync(filePath)) {
       try {
         fs.unlinkSync(filePath);
@@ -117,4 +119,4 @@ export class LocalCacheService implements CacheInterface {
     const filePath = this.getCacheFilePath(key);
     return fs.existsSync(filePath);
   }
-} 
+}
