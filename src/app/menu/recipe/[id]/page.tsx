@@ -1,27 +1,19 @@
-import { MenuLayout } from '../../_components/menu';
-import { fetchRecipe } from '../../_utils/data';
-import { RecipeDetail } from './_components/detail';
-import { DishHero, DishHeroDetail } from './_components/dish-hero';
+import { RecipeDetailPage } from '~/components/pages/recipe-detail.page';
+import { notFound } from 'next/navigation';
+import { CachedDataFetcher } from '~/shared/utils/cached-data-fetcher';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function RecipePage({ params }: PageProps) {
+export default async function RecipeRoute({ params }: PageProps) {
   const { id } = await params;
-  const recipe = await fetchRecipe(id);
-
-  if (!recipe) return null;
-
-  const { images = [] } = recipe;
-
-  return (
-    <MenuLayout>
-      <DishHero heroImgSrc={images[0]}>
-        <DishHeroDetail recipeRaw={recipe} />
-      </DishHero>
-
-      <RecipeDetail recipeRaw={recipe} images={images} />
-    </MenuLayout>
-  );
+  
+  const recipe = await CachedDataFetcher.fetchRecipeSSR(id);
+  
+  if (!recipe) {
+    return notFound();
+  }
+  
+  return <RecipeDetailPage recipe={recipe} />;
 }
