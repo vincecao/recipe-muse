@@ -2,20 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import AboutUsButton from '../navigation/about-us-button';
-import BackButton from '../navigation/back-button';
-import HomeButton from '../navigation/home-button';
-import LanguageButton from '../navigation/language-button';
-import ThemeButton from '../navigation/theme-button';
-import RefreshButton from '../navigation/refresh-button';
-import GenerateButton from '../navigation/generate-button';
-import ChatButton from '../navigation/chat-button';
+import AboutUsButton from '../ui/navigation/about-us-button';
+import BackButton from '../ui/navigation/back-button';
+import HomeButton from '../ui/navigation/home-button';
+import LanguageButton from '../ui/navigation/language-button';
+import ThemeButton from '../ui/navigation/theme-button';
+import RefreshButton from '../ui/navigation/refresh-button';
+import GenerateButton from '../ui/navigation/generate-button';
+import ChatButton from '../ui/navigation/chat-button';
 
 export default function InnerApp({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const allowHome = pathname !== '/';
-  const allowBack = !['/menu', '/about-us'].includes(pathname);
-  const allowRefresh = pathname.startsWith('/menu');
+  const allowBack = pathname ? !['/menu', '/about-us'].includes(pathname) : true;
+  const allowRefresh = pathname ? pathname.startsWith('/menu') : false;
   const showAboutUs = pathname !== '/about-us';
 
   return (

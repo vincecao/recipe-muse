@@ -2,8 +2,8 @@
 
 import { Cuisine } from '~/domain/entities/recipe.entity';
 import { useForm } from 'react-hook-form';
-import View from '~/presentation/components/features/recipe-generator';
-import useLanguage from '~/presentation/hooks/use-language';
+import View from '~/components/features/recipe-generator';
+import useLanguage from '~/shared/hooks/use-language';
 import { CUISINE_OPTIONS, TRANSLATIONS } from './_constants';
 import { generateRecipe, generateRecipeNames } from './_utils';
 import { useGenerateReducer } from './_use-generate-reducer';
@@ -270,18 +270,30 @@ export default function GeneratePage() {
     <div className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6">
       {modelSelectCtrl}
 
-      <form
-        onSubmit={step === 1 ? handleSubmit(handleStep1) : handleSubmit(handleStep2)}
-        className="bg-white/70 dark:bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-slate-200 dark:border-slate-700 mb-4"
-      >
-        {step === 1 && stepOneForm}
+      <div className="relative">
+        {process.env.NODE_ENV !== 'production' && (
+          <div className="absolute inset-0 bg-black/30 z-40 flex items-center justify-center rounded-xl">
+            <div className="bg-white dark:bg-gray-900 p-4 rounded-xl text-center border border-gray-200 dark:border-gray-700 shadow-lg max-w-md mx-4">
+              <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">Feature Unavailable</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Please try the recipe generation feature in local development environment only.
+              </p>
+            </div>
+          </div>
+        )}
+        <form
+          onSubmit={step === 1 ? handleSubmit(handleStep1) : handleSubmit(handleStep2)}
+          className="bg-white/70 dark:bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-slate-200 dark:border-slate-700 mb-4"
+        >
+          {step === 1 && stepOneForm}
 
-        {step === 2 && stepTwoForm}
-      </form>
+          {step === 2 && stepTwoForm}
+        </form>
 
-      {progressCtrl}
+        {progressCtrl}
 
-      <View recipes={generatedRecipes} />
+        <View recipes={generatedRecipes} />
+      </div>
     </div>
   );
 }

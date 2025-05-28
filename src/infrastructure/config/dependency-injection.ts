@@ -7,10 +7,10 @@ import { firebaseDb } from '../services/firebase.service';
 import { CacheInterface } from '../../domain/interfaces/cache.interface';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { LocalCacheService } from '../cache/local-cache.service';
+import { NextJSCacheService } from '../cache/nextjs-cache.service';
 import { MultiCacheService } from '../cache/multi-cache.service';
 import { GetAllRecipesUseCase } from '../../application/use-cases/get-all-recipes.use-case';
 import { GetRecipeByIdUseCase } from '../../application/use-cases/get-recipe-by-id.use-case';
-import { GetRecipesByCategoryUseCase } from '../../application/use-cases/get-recipes-by-category.use-case';
 
 class DIContainer {
   private static instance: DIContainer;
@@ -28,6 +28,7 @@ class DIContainer {
   async initialize(): Promise<void> {
     // Initialize cache services with configuration
     const REDIS_CACHE_EXPIRATION = Number(process.env.REDIS_CACHE_EXPIRATION) || 3600;
+    const NEXTJS_CACHE_EXPIRATION = Number(process.env.NEXTJS_CACHE_EXPIRATION) || 3600;
 
     const redisConfig = {
       defaultTtl: REDIS_CACHE_EXPIRATION,
@@ -39,12 +40,22 @@ class DIContainer {
       enabled: process.env.NODE_ENV === 'development',
     };
 
-    // Create multi cache (local first, redis second)
+    const nextjsConfig = {
+      defaultTtl: NEXTJS_CACHE_EXPIRATION,
+      enabled: true,
+    };
+
+    const nextjsCache = new NextJSCacheService(nextjsConfig);
+    // Create multi cache (local first, redis second, nextjs third)
     const cacheService = new MultiCacheService([
+      nextjsCache,
       new LocalCacheService(localConfig),
       new RedisCacheService(redisConfig),
     ]);
     this.services.set('cacheService', cacheService);
+
+    // Store individual cache services for direct access
+    this.services.set('nextjsCacheService', nextjsCache);
 
     // Initialize repositories with optional image URL enhancement
     const recipesRepo = new ImageEnhancedRecipeRepository(
@@ -59,11 +70,9 @@ class DIContainer {
     // Initialize use cases
     const getAllRecipesUseCase = new GetAllRecipesUseCase(withCachedRepo);
     const getRecipeByIdUseCase = new GetRecipeByIdUseCase(withCachedRepo);
-    const getRecipesByCategoryUseCase = new GetRecipesByCategoryUseCase(withCachedRepo);
 
     this.services.set('getAllRecipesUseCase', getAllRecipesUseCase);
     this.services.set('getRecipeByIdUseCase', getRecipeByIdUseCase);
-    this.services.set('getRecipesByCategoryUseCase', getRecipesByCategoryUseCase);
   }
 
   private get<T>(serviceName: string): T {
@@ -83,16 +92,16 @@ class DIContainer {
     return this.get<CacheInterface>('cacheService');
   }
 
+  getNextJSCacheService(): NextJSCacheService {
+    return this.get<NextJSCacheService>('nextjsCacheService');
+  }
+
   getGetAllRecipesUseCase(): GetAllRecipesUseCase {
     return this.get<GetAllRecipesUseCase>('getAllRecipesUseCase');
   }
 
   getGetRecipeByIdUseCase(): GetRecipeByIdUseCase {
     return this.get<GetRecipeByIdUseCase>('getRecipeByIdUseCase');
-  }
-
-  getGetRecipesByCategoryUseCase(): GetRecipesByCategoryUseCase {
-    return this.get<GetRecipesByCategoryUseCase>('getRecipesByCategoryUseCase');
   }
 }
 

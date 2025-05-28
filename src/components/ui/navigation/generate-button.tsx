@@ -8,8 +8,7 @@ const GenerateButton = () => {
       to="/experiment/generate"
       text="Generate"
       icon={<FiZap className="w-4 h-4" />}
-      tooltip={{ content: 'Generate Recipe (Public Disabled)' }}
-      disabled={process.env.NODE_ENV !== 'development'}
+      tooltip={{ content: 'Generate Recipe' }}
     />
   );
 };

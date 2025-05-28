@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { GiCookingPot, GiMeal, GiSpoon } from 'react-icons/gi';
 import { MdOutlineTimer, MdRestaurantMenu } from 'react-icons/md';
-import useLanguage from '~/presentation/hooks/use-language';
+import useLanguage from '~/shared/hooks/use-language';
 
 const content = {
   en: {

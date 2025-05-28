@@ -15,7 +15,7 @@ import {
 import { DbRecipe, Lang, RecipeIngredient, RecipeInstruction } from '~/domain/entities/recipe.entity';
 import { categoryTranslations, difficultyTranslations } from '~/domain/value-objects/translations.vo';
 import cn from 'classnames';
-import useLanguage from '~/presentation/hooks/use-language';
+import useLanguage from '~/shared/hooks/use-language';
 import Image from 'next/image';
 
 // Text mapping for multiple languages

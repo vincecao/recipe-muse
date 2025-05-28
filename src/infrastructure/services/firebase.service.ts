@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getDatabase, ref, get, set, remove, Database, update } from 'firebase/database';
-import { DbRecipe } from '~/domain/entities/recipe.entity';
+import type { DbRecipe } from '~/domain/entities/recipe.entity';
 
 // Firebase configuration
 const firebaseConfig = {

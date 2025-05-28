@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import useLanguage from '~/presentation/hooks/use-language';
+import useLanguage from '~/shared/hooks/use-language';
 import { Lang } from '~/domain/entities/recipe.entity';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import cn from 'classnames';

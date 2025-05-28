@@ -7,7 +7,7 @@ import { difficultyTranslations } from '~/domain/value-objects/translations.vo';
 import cn from 'classnames';
 import { memo, PropsWithChildren } from 'react';
 import { FaGripfire, FaUsers } from 'react-icons/fa';
-import useLanguage from '~/presentation/hooks/use-language';
+import useLanguage from '~/shared/hooks/use-language';
 import Image from 'next/image';
 
 // Text mapping for multiple languages

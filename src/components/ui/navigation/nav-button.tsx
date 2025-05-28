@@ -1,7 +1,7 @@
 import { memo, ReactNode, ButtonHTMLAttributes, MouseEventHandler } from 'react';
 import cn from 'classnames';
 import Link from 'next/link';
-import Tooltip from '../ui/tooltip';
+import Tooltip from '../tooltip';
 
 type NavButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   to?: string;

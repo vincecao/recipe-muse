@@ -6,8 +6,8 @@ import {
   DishLayout,
   DishItem,
   MenuFooter,
-} from '../components/features/menu';
-import { DbRecipe } from '~/domain/entities/recipe.entity';
+} from '../features/menu';
+import type { DbRecipe } from '~/domain/entities/recipe.entity';
 import Link from 'next/link';
 
 function groupRecipesByCategory(recipes: DbRecipe[]): Record<string, DbRecipe[]> {

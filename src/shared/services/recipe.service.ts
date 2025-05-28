@@ -1,6 +1,6 @@
 import { container } from '../../infrastructure/config/dependency-injection';
 import { RecipeAdapter } from '../adapters/recipe.adapter';
-import { Category, DbRecipe } from '../../domain/entities/recipe.entity';
+import type { DbRecipe } from '../../domain/entities/recipe.entity';
 
 export class RecipeService {
   // Main service methods - return DbRecipe format that components actually use
@@ -19,18 +19,5 @@ export class RecipeService {
     }
     
     return RecipeAdapter.toDbRecipe(entity);
-  }
-
-  static async getRecipesByCategory(): Promise<Record<Category, DbRecipe[]>> {
-    const useCase = container.getGetRecipesByCategoryUseCase();
-    const entitiesByCategory = await useCase.execute();
-    
-    const result: Record<Category, DbRecipe[]> = {} as Record<Category, DbRecipe[]>;
-    
-    for (const [category, entities] of Object.entries(entitiesByCategory)) {
-      result[category as Category] = RecipeAdapter.toDbRecipeList(entities);
-    }
-    
-    return result;
   }
 } 

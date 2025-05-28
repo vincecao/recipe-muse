@@ -9,8 +9,8 @@ import type {
   ResponseFormatJSONSchema,
   ResponseFormatText,
 } from 'openai/resources/index';
-import { DataFetcher } from '~/presentation/utils/data-fetcher';
 import { ModelFamily } from '~/domain/entities/llm.entity';
+import { CachedDataFetcher } from '~/shared/utils/cached-data-fetcher';
 
 /** tools */
 async function count(input: { text: string }): Promise<{ length: number }> {
@@ -18,7 +18,7 @@ async function count(input: { text: string }): Promise<{ length: number }> {
 }
 
 async function getMenuReference({ message, queries }: { message: string; queries: string[] }) {
-  const menuData = await DataFetcher.fetchRecipesSSR();
+  const menuData = await CachedDataFetcher.fetchRecipesSSR();
   const lowerCaseQueries = queries.map((q) => q.toLowerCase());
 
   const results = menuData.filter((item) => {

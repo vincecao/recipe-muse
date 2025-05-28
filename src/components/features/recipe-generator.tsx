@@ -2,8 +2,8 @@
 
 import { DishItem, DishLayout, MenuContent } from './menu';
 import { RecipeDetail } from './detail';
-import { DbRecipe } from '~/domain/entities/recipe.entity';
-import useLanguage from '~/presentation/hooks/use-language';
+import type { DbRecipe } from '~/domain/entities/recipe.entity';
+import useLanguage from '~/shared/hooks/use-language';
 import { useState } from 'react';
 
 export default function View({ recipes }: { recipes: DbRecipe[] }) {

@@ -4,7 +4,7 @@ import NavButton from './nav-button';
 import { FiMessageCircle } from 'react-icons/fi';
 import { ChatProgressEvent } from '~/application/controllers/llm.controller';
 import { DeepseekModel, ModelFamily } from '~/domain/entities/llm.entity';
-import { DbRecipe } from '~/domain/entities/recipe.entity';
+import type { DbRecipe } from '~/domain/entities/recipe.entity';
 
 type ChatMessage = {
   role: 'user' | 'bot';
@@ -196,8 +196,8 @@ const ChatContainer = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="fixed sm:absolute inset-0 sm:inset-auto sm:bottom-16 sm:right-0 w-full sm:w-96 h-full sm:h-[28rem] bg-white shadow-xl rounded-none sm:rounded-xl border-0 sm:border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
       {process.env.NODE_ENV === 'production' && (
-        <div className="absolute inset-0 bg-black/30 z-50 flex items-center justify-center rounded-xl">
-          <div className="bg-white dark:bg-gray-900 p-8 rounded-xl text-center border border-gray-200 dark:border-gray-700 shadow-lg max-w-md mx-4">
+        <div className="absolute top-[65px] inset-0 bg-black/30 z-40 flex items-center justify-center rounded-b-xl">
+          <div className="bg-white dark:bg-gray-900 p-4 rounded-xl text-center border border-gray-200 dark:border-gray-700 shadow-lg max-w-md mx-4">
             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">Chat Unavailable</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Please try the chat feature in local development environment only.

@@ -1,6 +1,6 @@
-import { RecipeDetailPage } from '~/presentation/pages/recipe-detail.page';
+import { RecipeDetailPage } from '~/components/pages/recipe-detail.page';
 import { notFound } from 'next/navigation';
-import { DataFetcher } from '~/presentation/utils/data-fetcher';
+import { CachedDataFetcher } from '~/shared/utils/cached-data-fetcher';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -9,7 +9,7 @@ interface PageProps {
 export default async function RecipeRoute({ params }: PageProps) {
   const { id } = await params;
   
-  const recipe = await DataFetcher.fetchRecipeSSR(id);
+  const recipe = await CachedDataFetcher.fetchRecipeSSR(id);
   
   if (!recipe) {
     return notFound();

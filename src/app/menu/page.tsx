@@ -1,7 +1,7 @@
-import { MenuPage } from '~/presentation/pages/menu.page';
-import { DataFetcher } from '~/presentation/utils/data-fetcher';
+import { MenuPage } from '~/components/pages/menu.page';
+import { CachedDataFetcher } from '~/shared/utils/cached-data-fetcher';
 
 export default async function MenuRoute() {
-  const recipes = await DataFetcher.fetchRecipesSSR();
+  const recipes = await CachedDataFetcher.fetchRecipesSSR();
   return <MenuPage recipes={recipes} />;
 }

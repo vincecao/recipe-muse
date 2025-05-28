@@ -3,7 +3,7 @@
 import { memo, useEffect, useLayoutEffect, useState } from 'react';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import NavButton from './nav-button';
-import { useTheme } from '../layout/theme-provider';
+import { useTheme } from '../../layout/theme-provider';
 
 const ThemeButton = memo(function ThemeButtonComponent() {
   const [mounted, setMounted] = useState(false);

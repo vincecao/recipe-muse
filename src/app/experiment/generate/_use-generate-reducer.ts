@@ -1,6 +1,6 @@
 import { useReducer } from 'react';
 import { ModelFamily, DeepseekModel } from '~/domain/entities/llm.entity';
-import { DbRecipe } from '~/domain/entities/recipe.entity';
+import type { DbRecipe } from '~/domain/entities/recipe.entity';
 
 type State = {
   model: string;

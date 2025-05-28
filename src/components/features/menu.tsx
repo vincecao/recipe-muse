@@ -6,7 +6,7 @@ import { GoClock } from 'react-icons/go';
 import { TiStarFullOutline } from 'react-icons/ti';
 import { DbRecipe, Dish } from '~/domain/entities/recipe.entity';
 import { categoryTranslations, difficultyTranslations } from '~/domain/value-objects/translations.vo';
-import useLanguage from '~/presentation/hooks/use-language';
+import useLanguage from '~/shared/hooks/use-language';
 import Image from 'next/image';
 
 const TEXT_MAPPING = {
